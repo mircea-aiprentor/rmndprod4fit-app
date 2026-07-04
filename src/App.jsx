@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import Login from './pages/Login'
-import ReelForm from './pages/ReelForm'
+import Dashboard from './pages/Dashboard'
 
 function App() {
   const [trainer, setTrainer] = useState(null)
@@ -9,7 +9,7 @@ function App() {
     return <Login onLoginSuccess={setTrainer} />
   }
 
-  return <ReelForm trainer={trainer} onLogout={() => setTrainer(null)} />
+  return <Dashboard trainer={trainer} onLogout={() => setTrainer(null)} />
 }
 
 export default App

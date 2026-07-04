@@ -1,11 +1,12 @@
 import { useRef, useState } from 'react'
 import { MUSCLE_GROUPS, CONTENT_TYPES } from '../data/reelOptions'
 import { MUSIC_TRACKS } from '../data/musicTracks'
+import { supabase } from '../supabaseClient'
 import './ReelForm.css'
 
 const CLIP_SLOTS = [0, 1, 2]
 
-export default function ReelForm({ trainer, onLogout }) {
+export default function ReelForm({ trainer, onReelCreated }) {
   const [muscleGroup, setMuscleGroup] = useState(null)
   const [contentType, setContentType] = useState(null)
   const [altceva, setAltceva] = useState('')
@@ -53,7 +54,28 @@ export default function ReelForm({ trainer, onLogout }) {
     setErrorMessage('')
 
     try {
-      // 1. Urcăm fiecare clip video, pe rând, către backend (care le pune în R2)
+      const temaValue = usesFreeText ? altceva.trim() : undefined
+      const muscleGroupValue = usesFreeText ? undefined : muscleGroup
+      const contentTypeValue = usesFreeText ? undefined : contentType
+
+      // 1. Creăm rândul în Supabase, cu status "processing", ca să avem un ID
+      //    pe care n8n îl va folosi mai târziu ca să actualizeze rezultatul.
+      const { data: reelRow, error: insertError } = await supabase
+        .from('reels')
+        .insert({
+          trainer_id: trainer.id,
+          tema: temaValue || `${muscleGroupValue || ''} · ${contentTypeValue || ''}`,
+          music_choice: musicChoice,
+          status: 'processing',
+        })
+        .select()
+        .single()
+
+      if (insertError) {
+        throw new Error('Nu am putut crea reel-ul în istoric.')
+      }
+
+      // 2. Urcăm fiecare clip video, pe rând, către backend (care le pune în R2)
       const clipUrls = []
       for (let i = 0; i < clips.length; i++) {
         const formData = new FormData()
@@ -74,12 +96,13 @@ export default function ReelForm({ trainer, onLogout }) {
         clipUrls.push(url)
       }
 
-      // 2. Trimitem comanda finală către n8n, prin backend-ul care ascunde cheia API
+      // 3. Trimitem comanda finală către n8n, prin backend-ul care ascunde cheia API
       const payload = {
+        reel_id: reelRow.id,
         trainer_id: trainer.id,
-        tema: usesFreeText ? altceva.trim() : undefined,
-        muscle_group: usesFreeText ? undefined : muscleGroup,
-        content_type: usesFreeText ? undefined : contentType,
+        tema: temaValue,
+        muscle_group: muscleGroupValue,
+        content_type: contentTypeValue,
         music_choice: musicChoice,
         clip_urls: clipUrls,
       }
@@ -95,6 +118,11 @@ export default function ReelForm({ trainer, onLogout }) {
       }
 
       setStatus('done')
+      setMuscleGroup(null)
+      setContentType(null)
+      setAltceva('')
+      setClips([null, null, null])
+      onReelCreated?.()
     } catch (err) {
       console.error(err)
       setErrorMessage(err.message || 'A apărut o eroare.')
@@ -105,16 +133,6 @@ export default function ReelForm({ trainer, onLogout }) {
   return (
     <div className="reel-form-screen">
       <audio ref={audioRef} onEnded={() => setPlayingTrack(null)} />
-
-      <header className="reel-form-header">
-        <div>
-          <p className="reel-form-eyebrow">Conectat ca</p>
-          <h1 className="reel-form-name">{trainer.name}</h1>
-        </div>
-        <button className="reel-form-logout" onClick={onLogout}>
-          Deconectează-te
-        </button>
-      </header>
 
       <form className="reel-form" onSubmit={handleSubmit}>
         <section className="reel-section">
@@ -217,8 +235,7 @@ export default function ReelForm({ trainer, onLogout }) {
 
         {status === 'done' && (
           <p className="reel-status reel-status--ok">
-            Trimis cu succes! Reel-ul se randează acum — vei primi videoul gata (vezi
-            callback-ul din n8n).
+            Trimis cu succes! Urmărește progresul în „Istoricul meu".
           </p>
         )}
 
