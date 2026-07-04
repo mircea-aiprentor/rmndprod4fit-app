@@ -1,0 +1,242 @@
+.reel-form-screen {
+  min-height: 100%;
+  padding: 24px 16px 64px;
+  max-width: 640px;
+  margin: 0 auto;
+}
+
+.reel-form-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 28px;
+}
+
+.reel-form-eyebrow {
+  margin: 0 0 2px;
+  color: var(--text-muted);
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.reel-form-name {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 26px;
+  color: var(--accent);
+}
+
+.reel-form-logout {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 8px 14px;
+  border-radius: 8px;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.reel-form-logout:hover {
+  border-color: var(--accent);
+}
+
+.reel-form {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
+.reel-section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.reel-section__title {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+  margin: 0;
+}
+
+.pill-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.pill {
+  padding: 10px 16px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.12s ease, border-color 0.12s ease, color 0.12s ease;
+}
+
+.pill:hover:not(:disabled) {
+  border-color: var(--accent);
+}
+
+.pill:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.pill--active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--accent-contrast);
+}
+
+.reel-input {
+  width: 100%;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 12px 14px;
+  color: var(--text);
+  font-size: 15px;
+}
+
+.reel-input:focus {
+  border-color: var(--accent);
+}
+
+.track-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.track-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 14px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  cursor: pointer;
+  transition: border-color 0.12s ease, background 0.12s ease;
+}
+
+.track-row:hover {
+  border-color: var(--accent);
+}
+
+.track-row--active {
+  border-color: var(--accent);
+  background: var(--surface-raised);
+}
+
+.track-row__label {
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.track-row__play {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  flex-shrink: 0;
+}
+
+.track-row__play:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.clip-slots {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.clip-slot {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px;
+  border-radius: 10px;
+  border: 1px dashed var(--border);
+  background: var(--surface);
+  cursor: pointer;
+}
+
+.clip-slot:hover {
+  border-color: var(--accent);
+}
+
+.clip-slot__number {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--surface-raised);
+  color: var(--text-muted);
+  font-size: 12px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.clip-slot__text {
+  font-size: 14px;
+  color: var(--text-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.clip-slot__input {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.reel-submit {
+  height: 52px;
+  border-radius: 10px;
+  border: none;
+  background: var(--accent);
+  color: var(--accent-contrast);
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.reel-submit:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.reel-status {
+  font-size: 13px;
+  text-align: center;
+  margin: -12px 0 0;
+}
+
+.reel-status--ok {
+  color: var(--accent);
+}
+
+.reel-status--error {
+  color: var(--danger);
+}

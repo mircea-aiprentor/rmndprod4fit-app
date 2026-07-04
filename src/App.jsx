@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import Login from './pages/Login'
-import './App.css'
+import ReelForm from './pages/ReelForm'
 
 function App() {
   const [trainer, setTrainer] = useState(null)
@@ -9,18 +9,7 @@ function App() {
     return <Login onLoginSuccess={setTrainer} />
   }
 
-  return (
-    <div className="dashboard-placeholder">
-      <p className="dashboard-placeholder__eyebrow">Conectat ca</p>
-      <h1 className="dashboard-placeholder__name">{trainer.name}</h1>
-      <p className="dashboard-placeholder__note">
-        Aici urmează formularul de generare reel (temă, mușchi, muzică, upload clipuri).
-      </p>
-      <button className="dashboard-placeholder__logout" onClick={() => setTrainer(null)}>
-        Deconectează-te
-      </button>
-    </div>
-  )
+  return <ReelForm trainer={trainer} onLogout={() => setTrainer(null)} />
 }
 
 export default App
