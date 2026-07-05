@@ -4,7 +4,8 @@ import { MUSIC_TRACKS } from '../data/musicTracks'
 import { supabase } from '../supabaseClient'
 import './ReelForm.css'
 
-const CLIP_SLOTS = [0, 1, 2]
+const MIN_CLIPS = 2
+const MAX_CLIPS = 6
 
 export default function ReelForm({ trainer, onReelCreated }) {
   const [muscleGroup, setMuscleGroup] = useState(null)
@@ -12,7 +13,7 @@ export default function ReelForm({ trainer, onReelCreated }) {
   const [altceva, setAltceva] = useState('')
   const [musicChoice, setMusicChoice] = useState('track1')
   const [playingTrack, setPlayingTrack] = useState(null)
-  const [clips, setClips] = useState([null, null, null])
+  const [clips, setClips] = useState([null, null])
   const [status, setStatus] = useState('idle') // idle | submitting | done | error
   const [errorMessage, setErrorMessage] = useState('')
 
@@ -41,8 +42,25 @@ export default function ReelForm({ trainer, onReelCreated }) {
     })
   }
 
+  const addClipSlot = () => {
+    setClips((prev) => {
+      if (prev.length >= MAX_CLIPS) return prev
+      return [...prev, null]
+    })
+  }
+
+  const removeClipSlot = (index) => {
+    setClips((prev) => {
+      if (prev.length <= MIN_CLIPS) return prev
+      const next = prev.filter((_, i) => i !== index)
+      return next
+    })
+  }
+
   const canSubmit =
     (usesFreeText || (muscleGroup && contentType)) &&
+    clips.length >= MIN_CLIPS &&
+    clips.length <= MAX_CLIPS &&
     clips.every((c) => c !== null) &&
     status !== 'submitting'
 
@@ -121,7 +139,7 @@ export default function ReelForm({ trainer, onReelCreated }) {
       setMuscleGroup(null)
       setContentType(null)
       setAltceva('')
-      setClips([null, null, null])
+      setClips([null, null])
       onReelCreated?.()
     } catch (err) {
       console.error(err)
@@ -210,13 +228,15 @@ export default function ReelForm({ trainer, onReelCreated }) {
         </section>
 
         <section className="reel-section">
-          <h2 className="reel-section__title">Clipuri (3 fișiere video)</h2>
+          <h2 className="reel-section__title">
+            Clipuri ({clips.length} din {MAX_CLIPS}, minim {MIN_CLIPS})
+          </h2>
           <div className="clip-slots">
-            {CLIP_SLOTS.map((index) => (
+            {clips.map((clip, index) => (
               <label key={index} className="clip-slot">
                 <span className="clip-slot__number">{index + 1}</span>
                 <span className="clip-slot__text">
-                  {clips[index] ? clips[index].name : 'Alege un clip video'}
+                  {clip ? clip.name : 'Alege un clip video'}
                 </span>
                 <input
                   type="file"
@@ -224,9 +244,32 @@ export default function ReelForm({ trainer, onReelCreated }) {
                   className="clip-slot__input"
                   onChange={(e) => handleClipChange(index, e.target.files?.[0] ?? null)}
                 />
+                {clips.length > MIN_CLIPS && (
+                  <button
+                    type="button"
+                    className="clip-slot__remove"
+                    onClick={(e) => {
+                      e.preventDefault()
+                      removeClipSlot(index)
+                    }}
+                    aria-label="Elimină acest clip"
+                  >
+                    ✕
+                  </button>
+                )}
               </label>
             ))}
           </div>
+
+          {clips.length < MAX_CLIPS && (
+            <button
+              type="button"
+              className="clip-slot__add"
+              onClick={addClipSlot}
+            >
+              + Adaugă încă un clip
+            </button>
+          )}
         </section>
 
         <button type="submit" className="reel-submit" disabled={!canSubmit}>
