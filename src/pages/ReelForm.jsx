@@ -93,25 +93,39 @@ export default function ReelForm({ trainer, onReelCreated }) {
         throw new Error('Nu am putut crea reel-ul în istoric.')
       }
 
-      // 2. Urcăm fiecare clip video, pe rând, către backend (care le pune în R2)
+      // 2. Pentru fiecare clip: cerem un URL presigned, apoi urcăm fișierul
+      //    DIRECT în R2 (ocolim limita de timp/mărime a unei Cloudflare Function).
       const clipUrls = []
       for (let i = 0; i < clips.length; i++) {
-        const formData = new FormData()
-        formData.append('file', clips[i])
-        formData.append('trainer_id', trainer.id)
-        formData.append('slot', String(i))
+        const file = clips[i]
 
-        const uploadRes = await fetch('/api/upload-clip', {
+        const presignRes = await fetch('/api/get-upload-url', {
           method: 'POST',
-          body: formData,
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            trainer_id: trainer.id,
+            slot: i,
+            content_type: file.type || 'video/mp4',
+          }),
         })
 
-        if (!uploadRes.ok) {
+        if (!presignRes.ok) {
+          throw new Error(`Nu am putut pregăti upload-ul pentru clipul ${i + 1}.`)
+        }
+
+        const { uploadUrl, publicUrl } = await presignRes.json()
+
+        const putRes = await fetch(uploadUrl, {
+          method: 'PUT',
+          headers: { 'Content-Type': file.type || 'video/mp4' },
+          body: file,
+        })
+
+        if (!putRes.ok) {
           throw new Error(`Upload eșuat la clipul ${i + 1}`)
         }
 
-        const { url } = await uploadRes.json()
-        clipUrls.push(url)
+        clipUrls.push(publicUrl)
       }
 
       // 3. Trimitem comanda finală către n8n, prin backend-ul care ascunde cheia API
