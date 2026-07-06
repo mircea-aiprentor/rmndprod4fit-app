@@ -2,28 +2,27 @@ import { useState } from 'react'
 import ReelForm from './ReelForm'
 import ReelHistory from './ReelHistory'
 import './Dashboard.css'
-
 export default function Dashboard({ trainer, onLogout }) {
   const [activeTab, setActiveTab] = useState('form') // form | history
   const [refreshSignal, setRefreshSignal] = useState(0)
-
   const handleReelCreated = () => {
     setRefreshSignal((n) => n + 1)
     setActiveTab('history')
   }
-
   return (
     <div className="dashboard-screen">
       <header className="dashboard-header">
-        <div>
-          <p className="dashboard-eyebrow">Conectat ca</p>
-          <h1 className="dashboard-name">{trainer.name}</h1>
+        <div className="dashboard-header__identity">
+          <img src="/logo.png" alt="" className="dashboard-header__mark" />
+          <div>
+            <p className="dashboard-eyebrow">Conectat ca</p>
+            <h1 className="dashboard-name">{trainer.name}</h1>
+          </div>
         </div>
         <button className="dashboard-logout" onClick={onLogout}>
           Deconectează-te
         </button>
       </header>
-
       <nav className="dashboard-tabs">
         <button
           className={`dashboard-tab ${activeTab === 'form' ? 'dashboard-tab--active' : ''}`}
@@ -38,8 +37,7 @@ export default function Dashboard({ trainer, onLogout }) {
           Istoricul meu
         </button>
       </nav>
-
-      <div className="dashboard-content">
+      <div className="dashboard-content" key={activeTab}>
         {activeTab === 'form' ? (
           <ReelForm trainer={trainer} onReelCreated={handleReelCreated} />
         ) : (

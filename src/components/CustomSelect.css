@@ -1,0 +1,94 @@
+.custom-select {
+  position: relative;
+  width: 100%;
+}
+.custom-select--disabled {
+  opacity: 0.35;
+  pointer-events: none;
+}
+.custom-select__trigger {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  background: linear-gradient(180deg, var(--surface-raised) 0%, #1e2126 100%);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 13px 14px;
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: 15px;
+  text-align: left;
+  cursor: pointer;
+  box-shadow: var(--shadow-soft);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+.custom-select__trigger:hover {
+  border-color: rgba(215, 255, 61, 0.4);
+}
+.custom-select__trigger--open {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(215, 255, 61, 0.12);
+}
+.custom-select__value {
+  color: var(--text);
+}
+.custom-select__placeholder {
+  color: var(--text-muted);
+}
+.custom-select__chevron {
+  display: flex;
+  align-items: center;
+  color: var(--text-muted);
+  flex-shrink: 0;
+  transition: transform 0.2s ease;
+}
+.custom-select__trigger--open .custom-select__chevron {
+  transform: rotate(180deg);
+  color: var(--accent);
+}
+.custom-select__list {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  right: 0;
+  z-index: 30;
+  margin: 0;
+  padding: 6px;
+  list-style: none;
+  max-height: 240px;
+  overflow-y: auto;
+  background: linear-gradient(180deg, #20242a 0%, #171a1f 100%);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-card);
+  animation: select-list-in 0.15s ease-out;
+}
+@keyframes select-list-in {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.custom-select__option {
+  padding: 10px 12px;
+  border-radius: 8px;
+  font-size: 14px;
+  color: var(--text);
+  cursor: pointer;
+  transition: background 0.12s ease, color 0.12s ease;
+}
+.custom-select__option:hover {
+  background: rgba(215, 255, 61, 0.08);
+}
+.custom-select__option--selected {
+  background: rgba(215, 255, 61, 0.14);
+  color: var(--accent);
+  font-weight: 600;
+}
+.custom-select__list::-webkit-scrollbar {
+  width: 8px;
+}
+.custom-select__list::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 4px;
+}

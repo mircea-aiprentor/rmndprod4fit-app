@@ -2,10 +2,12 @@ import { useRef, useState } from 'react'
 import { MUSCLE_GROUPS, CONTENT_TYPES } from '../data/reelOptions'
 import { MUSIC_TRACKS } from '../data/musicTracks'
 import { supabase } from '../supabaseClient'
+import CustomSelect from '../components/CustomSelect'
 import './ReelForm.css'
 
 const MIN_CLIPS = 2
 const MAX_CLIPS = 6
+const NO_MUSIC_OPTIONS = [{ id: '', label: 'Fără muzică' }, ...MUSIC_TRACKS]
 
 export default function ReelForm({ trainer, onReelCreated }) {
   const [mode, setMode] = useState('prompt') // prompt | subtitle
@@ -35,6 +37,12 @@ export default function ReelForm({ trainer, onReelCreated }) {
       audioRef.current.play()
     }
     setPlayingTrack(track.id)
+  }
+
+  const handleMusicChange = (id) => {
+    setMusicChoice(id)
+    setPlayingTrack(null)
+    audioRef.current?.pause()
   }
 
   const handleClipChange = (index, file) => {
@@ -200,43 +208,25 @@ export default function ReelForm({ trainer, onReelCreated }) {
         {mode === 'prompt' && (
           <>
             <section className="reel-section">
-              <label className="reel-section__title" htmlFor="muscle-group-select">
-                Grupă musculară
-              </label>
-              <select
-                id="muscle-group-select"
-                className="reel-select"
+              <span className="reel-section__title">Grupă musculară</span>
+              <CustomSelect
+                options={MUSCLE_GROUPS}
                 value={muscleGroup}
-                onChange={(e) => setMuscleGroup(e.target.value)}
+                onChange={setMuscleGroup}
+                placeholder="Alege o grupă"
                 disabled={usesFreeText}
-              >
-                <option value="">Alege o grupă</option>
-                {MUSCLE_GROUPS.map((option) => (
-                  <option key={option.id} value={option.id}>
-                    {option.label}
-                  </option>
-                ))}
-              </select>
+              />
             </section>
 
             <section className="reel-section">
-              <label className="reel-section__title" htmlFor="content-type-select">
-                Tip conținut
-              </label>
-              <select
-                id="content-type-select"
-                className="reel-select"
+              <span className="reel-section__title">Tip conținut</span>
+              <CustomSelect
+                options={CONTENT_TYPES}
                 value={contentType}
-                onChange={(e) => setContentType(e.target.value)}
+                onChange={setContentType}
+                placeholder="Alege un tip"
                 disabled={usesFreeText}
-              >
-                <option value="">Alege un tip</option>
-                {CONTENT_TYPES.map((option) => (
-                  <option key={option.id} value={option.id}>
-                    {option.label}
-                  </option>
-                ))}
-              </select>
+              />
             </section>
 
             <section className="reel-section">
@@ -301,27 +291,14 @@ export default function ReelForm({ trainer, onReelCreated }) {
         </section>
 
         <section className="reel-section">
-          <label className="reel-section__title" htmlFor="music-select">
-            Muzică (opțional)
-          </label>
+          <span className="reel-section__title">Muzică (opțional)</span>
           <div className="music-picker">
-            <select
-              id="music-select"
-              className="reel-select"
+            <CustomSelect
+              options={NO_MUSIC_OPTIONS}
               value={musicChoice}
-              onChange={(e) => {
-                setMusicChoice(e.target.value)
-                setPlayingTrack(null)
-                audioRef.current?.pause()
-              }}
-            >
-              <option value="">Fără muzică</option>
-              {MUSIC_TRACKS.map((track) => (
-                <option key={track.id} value={track.id}>
-                  {track.label}
-                </option>
-              ))}
-            </select>
+              onChange={handleMusicChange}
+              placeholder="Fără muzică"
+            />
             {musicChoice && (
               <button
                 type="button"
