@@ -46,10 +46,40 @@ export default function Login({ onLoginSuccess }) {
   }
   return (
     <div className="login-screen">
+      <div className="login-intro" aria-hidden="true">
+        <span className="login-intro__streak login-intro__streak--1" />
+        <span className="login-intro__streak login-intro__streak--2" />
+        <span className="login-intro__streak login-intro__streak--3" />
+        <span className="login-intro__streak login-intro__streak--4" />
+
+        <span className="login-intro__clip">
+          <span className="login-intro__clip-hole" />
+          <span className="login-intro__clip-hole" />
+        </span>
+
+        <svg className="login-intro__pulse" viewBox="0 0 400 60" preserveAspectRatio="none">
+          <path d="M0,32 L110,32 L128,10 L146,54 L164,20 L182,32 L400,32" />
+        </svg>
+
+        <span className="login-intro__blade" />
+        <span className="login-intro__flash" />
+      </div>
+
       <div className="login-card">
+        <span className="login-card__corner login-card__corner--tl" aria-hidden="true" />
+        <span className="login-card__corner login-card__corner--tr" aria-hidden="true" />
+        <span className="login-card__corner login-card__corner--bl" aria-hidden="true" />
+        <span className="login-card__corner login-card__corner--br" aria-hidden="true" />
+
         <div className="login-brand">
           <img src="/logo.png" alt="ElvisProCut" className="login-brand__logo" />
         </div>
+
+        <div className="login-scrub" aria-hidden="true">
+          <span className="login-scrub__track" />
+          <span className="login-scrub__playhead" />
+        </div>
+
         <p className="login-subtitle">Panou antrenor</p>
         <form onSubmit={handleSubmit} className="login-form">
           <label className="login-label" htmlFor="trainer-name">
