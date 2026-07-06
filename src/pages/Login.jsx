@@ -48,8 +48,7 @@ export default function Login({ onLoginSuccess }) {
     <div className="login-screen">
       <div className="login-card">
         <div className="login-brand">
-          <span className="login-brand__mark">ELVIS</span>
-          <span className="login-brand__mark login-brand__mark--accent">PROCUT.RO</span>
+          <img src="/logo.png" alt="ElvisProCut" className="login-brand__logo" />
         </div>
         <p className="login-subtitle">Panou antrenor</p>
         <form onSubmit={handleSubmit} className="login-form">
