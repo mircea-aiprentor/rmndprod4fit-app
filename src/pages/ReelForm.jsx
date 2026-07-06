@@ -8,10 +8,11 @@ const MIN_CLIPS = 2
 const MAX_CLIPS = 6
 
 export default function ReelForm({ trainer, onReelCreated }) {
-  const [muscleGroup, setMuscleGroup] = useState(null)
-  const [contentType, setContentType] = useState(null)
+  const [mode, setMode] = useState('prompt') // prompt | subtitle
+  const [muscleGroup, setMuscleGroup] = useState('')
+  const [contentType, setContentType] = useState('')
   const [altceva, setAltceva] = useState('')
-  const [musicChoice, setMusicChoice] = useState('track1')
+  const [musicChoice, setMusicChoice] = useState('') // '' = fără muzică
   const [playingTrack, setPlayingTrack] = useState(null)
   const [clips, setClips] = useState([null, null])
   const [status, setStatus] = useState('idle') // idle | submitting | done | error
@@ -19,9 +20,11 @@ export default function ReelForm({ trainer, onReelCreated }) {
 
   const audioRef = useRef(null)
 
-  const usesFreeText = altceva.trim().length > 0
+  const usesFreeText = mode === 'prompt' && altceva.trim().length > 0
 
-  const togglePreview = (track) => {
+  const togglePreview = () => {
+    const track = MUSIC_TRACKS.find((t) => t.id === musicChoice)
+    if (!track) return
     if (playingTrack === track.id) {
       audioRef.current?.pause()
       setPlayingTrack(null)
@@ -52,13 +55,12 @@ export default function ReelForm({ trainer, onReelCreated }) {
   const removeClipSlot = (index) => {
     setClips((prev) => {
       if (prev.length <= MIN_CLIPS) return prev
-      const next = prev.filter((_, i) => i !== index)
-      return next
+      return prev.filter((_, i) => i !== index)
     })
   }
 
   const canSubmit =
-    (usesFreeText || (muscleGroup && contentType)) &&
+    (mode === 'subtitle' || usesFreeText || (muscleGroup && contentType)) &&
     clips.length >= MIN_CLIPS &&
     clips.length <= MAX_CLIPS &&
     clips.every((c) => c !== null) &&
@@ -72,9 +74,15 @@ export default function ReelForm({ trainer, onReelCreated }) {
     setErrorMessage('')
 
     try {
-      const temaValue = usesFreeText ? altceva.trim() : undefined
-      const muscleGroupValue = usesFreeText ? undefined : muscleGroup
-      const contentTypeValue = usesFreeText ? undefined : contentType
+      const temaValue = mode === 'subtitle'
+        ? undefined
+        : (usesFreeText ? altceva.trim() : undefined)
+      const muscleGroupValue = mode === 'subtitle' || usesFreeText ? undefined : muscleGroup
+      const contentTypeValue = mode === 'subtitle' || usesFreeText ? undefined : contentType
+
+      const temaLabel = mode === 'subtitle'
+        ? 'Subtitrare automată'
+        : (temaValue || `${muscleGroupValue || ''} · ${contentTypeValue || ''}`)
 
       // 1. Creăm rândul în Supabase, cu status "processing", ca să avem un ID
       //    pe care n8n îl va folosi mai târziu ca să actualizeze rezultatul.
@@ -82,8 +90,8 @@ export default function ReelForm({ trainer, onReelCreated }) {
         .from('reels')
         .insert({
           trainer_id: trainer.id,
-          tema: temaValue || `${muscleGroupValue || ''} · ${contentTypeValue || ''}`,
-          music_choice: musicChoice,
+          tema: temaLabel,
+          music_choice: musicChoice || null,
           status: 'processing',
         })
         .select()
@@ -132,10 +140,11 @@ export default function ReelForm({ trainer, onReelCreated }) {
       const payload = {
         reel_id: reelRow.id,
         trainer_id: trainer.id,
+        content_mode: mode, // 'prompt' | 'subtitle' — n8n decide ramura după asta
         tema: temaValue,
         muscle_group: muscleGroupValue,
         content_type: contentTypeValue,
-        music_choice: musicChoice,
+        music_choice: musicChoice || null,
         clip_urls: clipUrls,
       }
 
@@ -150,9 +159,10 @@ export default function ReelForm({ trainer, onReelCreated }) {
       }
 
       setStatus('done')
-      setMuscleGroup(null)
-      setContentType(null)
+      setMuscleGroup('')
+      setContentType('')
       setAltceva('')
+      setMusicChoice('')
       setClips([null, null])
       onReelCreated?.()
     } catch (err) {
@@ -168,78 +178,82 @@ export default function ReelForm({ trainer, onReelCreated }) {
 
       <form className="reel-form" onSubmit={handleSubmit}>
         <section className="reel-section">
-          <h2 className="reel-section__title">Grupă musculară</h2>
+          <h2 className="reel-section__title">Ce vrei să faci?</h2>
           <div className="pill-row">
-            {MUSCLE_GROUPS.map((option) => (
-              <button
-                type="button"
-                key={option.id}
-                className={`pill ${muscleGroup === option.id ? 'pill--active' : ''}`}
-                onClick={() => setMuscleGroup(option.id)}
+            <button
+              type="button"
+              className={`pill ${mode === 'prompt' ? 'pill--active' : ''}`}
+              onClick={() => setMode('prompt')}
+            >
+              Prompt (aleg eu tema)
+            </button>
+            <button
+              type="button"
+              className={`pill ${mode === 'subtitle' ? 'pill--active' : ''}`}
+              onClick={() => setMode('subtitle')}
+            >
+              Subtitrare (doar transcrie)
+            </button>
+          </div>
+        </section>
+
+        {mode === 'prompt' && (
+          <>
+            <section className="reel-section">
+              <label className="reel-section__title" htmlFor="muscle-group-select">
+                Grupă musculară
+              </label>
+              <select
+                id="muscle-group-select"
+                className="reel-select"
+                value={muscleGroup}
+                onChange={(e) => setMuscleGroup(e.target.value)}
                 disabled={usesFreeText}
               >
-                {option.label}
-              </button>
-            ))}
-          </div>
-        </section>
+                <option value="">Alege o grupă</option>
+                {MUSCLE_GROUPS.map((option) => (
+                  <option key={option.id} value={option.id}>
+                    {option.label}
+                  </option>
+                ))}
+              </select>
+            </section>
 
-        <section className="reel-section">
-          <h2 className="reel-section__title">Tip conținut</h2>
-          <div className="pill-row">
-            {CONTENT_TYPES.map((option) => (
-              <button
-                type="button"
-                key={option.id}
-                className={`pill ${contentType === option.id ? 'pill--active' : ''}`}
-                onClick={() => setContentType(option.id)}
+            <section className="reel-section">
+              <label className="reel-section__title" htmlFor="content-type-select">
+                Tip conținut
+              </label>
+              <select
+                id="content-type-select"
+                className="reel-select"
+                value={contentType}
+                onChange={(e) => setContentType(e.target.value)}
                 disabled={usesFreeText}
               >
-                {option.label}
-              </button>
-            ))}
-          </div>
-        </section>
+                <option value="">Alege un tip</option>
+                {CONTENT_TYPES.map((option) => (
+                  <option key={option.id} value={option.id}>
+                    {option.label}
+                  </option>
+                ))}
+              </select>
+            </section>
 
-        <section className="reel-section">
-          <label className="reel-section__title" htmlFor="altceva">
-            Altceva? (opțional — dacă completezi, are prioritate)
-          </label>
-          <input
-            id="altceva"
-            className="reel-input"
-            type="text"
-            placeholder="ex: Cum îmi încălzesc genunchii înainte de picioare"
-            value={altceva}
-            onChange={(e) => setAltceva(e.target.value)}
-          />
-        </section>
-
-        <section className="reel-section">
-          <h2 className="reel-section__title">Muzică</h2>
-          <div className="track-list">
-            {MUSIC_TRACKS.map((track) => (
-              <div
-                key={track.id}
-                className={`track-row ${musicChoice === track.id ? 'track-row--active' : ''}`}
-                onClick={() => setMusicChoice(track.id)}
-              >
-                <span className="track-row__label">{track.label}</span>
-                <button
-                  type="button"
-                  className="track-row__play"
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    togglePreview(track)
-                  }}
-                  aria-label={playingTrack === track.id ? 'Oprește previzualizarea' : 'Ascultă previzualizarea'}
-                >
-                  {playingTrack === track.id ? '❚❚' : '▶'}
-                </button>
-              </div>
-            ))}
-          </div>
-        </section>
+            <section className="reel-section">
+              <label className="reel-section__title" htmlFor="altceva">
+                Altceva? (opțional — dacă completezi, are prioritate)
+              </label>
+              <input
+                id="altceva"
+                className="reel-input"
+                type="text"
+                placeholder="ex: Cum îmi încălzesc genunchii înainte de picioare"
+                value={altceva}
+                onChange={(e) => setAltceva(e.target.value)}
+              />
+            </section>
+          </>
+        )}
 
         <section className="reel-section">
           <h2 className="reel-section__title">
@@ -284,6 +298,41 @@ export default function ReelForm({ trainer, onReelCreated }) {
               + Adaugă încă un clip
             </button>
           )}
+        </section>
+
+        <section className="reel-section">
+          <label className="reel-section__title" htmlFor="music-select">
+            Muzică (opțional)
+          </label>
+          <div className="music-picker">
+            <select
+              id="music-select"
+              className="reel-select"
+              value={musicChoice}
+              onChange={(e) => {
+                setMusicChoice(e.target.value)
+                setPlayingTrack(null)
+                audioRef.current?.pause()
+              }}
+            >
+              <option value="">Fără muzică</option>
+              {MUSIC_TRACKS.map((track) => (
+                <option key={track.id} value={track.id}>
+                  {track.label}
+                </option>
+              ))}
+            </select>
+            {musicChoice && (
+              <button
+                type="button"
+                className="music-picker__play"
+                onClick={togglePreview}
+                aria-label={playingTrack === musicChoice ? 'Oprește previzualizarea' : 'Ascultă previzualizarea'}
+              >
+                {playingTrack === musicChoice ? '❚❚' : '▶'}
+              </button>
+            )}
+          </div>
         </section>
 
         <button type="submit" className="reel-submit" disabled={!canSubmit}>
