@@ -52,17 +52,27 @@ export default function Login({ onLoginSuccess }) {
         <span className="login-intro__streak login-intro__streak--3" />
         <span className="login-intro__streak login-intro__streak--4" />
 
-        <span className="login-intro__clip">
-          <span className="login-intro__clip-hole" />
-          <span className="login-intro__clip-hole" />
+        <span className="login-intro__pulse-wrap">
+          <svg className="login-intro__pulse" viewBox="0 0 400 84" preserveAspectRatio="none">
+            <path
+              className="login-intro__pulse-base"
+              d="M0,42 L40,42 L54,20 L68,64 L82,10 L96,42 L160,42 L200,42 L214,20 L228,64 L242,10 L256,42 L320,42 L360,42 L374,20 L388,64 L400,42"
+            />
+            <path
+              className="login-intro__pulse-comet"
+              d="M0,42 L40,42 L54,20 L68,64 L82,10 L96,42 L160,42 L200,42 L214,20 L228,64 L242,10 L256,42 L320,42 L360,42 L374,20 L388,64 L400,42"
+            />
+            <circle className="login-intro__pulse-head" r="5">
+              <animateMotion
+                dur="1.17s"
+                begin="0.10s"
+                fill="freeze"
+                path="M0,42 L40,42 L54,20 L68,64 L82,10 L96,42 L160,42 L200,42 L214,20 L228,64 L242,10 L256,42 L320,42 L360,42 L374,20 L388,64 L400,42"
+              />
+            </circle>
+          </svg>
         </span>
 
-        <svg className="login-intro__pulse" viewBox="0 0 400 60" preserveAspectRatio="none">
-          <path d="M0,32 L110,32 L128,10 L146,54 L164,20 L182,32 L400,32" />
-        </svg>
-
-        <span className="login-intro__blade" />
-        <span className="login-intro__flash" />
       </div>
 
       <div className="login-card">
@@ -72,7 +82,19 @@ export default function Login({ onLoginSuccess }) {
         <span className="login-card__corner login-card__corner--br" aria-hidden="true" />
 
         <div className="login-brand">
-          <img src="/logo.png" alt="ElvisProCut" className="login-brand__logo" />
+          <div className="login-brand__aperture">
+            <img src="/logo.png" alt="ElvisProCut" className="login-brand__logo" />
+            <svg className="login-brand__iris" width="112" height="112" viewBox="0 0 112 112">
+              <path className="login-brand__slice login-brand__slice--0" d="M56,56 L56,-29 A85,85 0 0,1 116.1,-4.1 Z" />
+              <path className="login-brand__slice login-brand__slice--1" d="M56,56 L116.1,-4.1 A85,85 0 0,1 141,56 Z" />
+              <path className="login-brand__slice login-brand__slice--2" d="M56,56 L141,56 A85,85 0 0,1 116.1,116.1 Z" />
+              <path className="login-brand__slice login-brand__slice--3" d="M56,56 L116.1,116.1 A85,85 0 0,1 56,141 Z" />
+              <path className="login-brand__slice login-brand__slice--4" d="M56,56 L56,141 A85,85 0 0,1 -4.1,116.1 Z" />
+              <path className="login-brand__slice login-brand__slice--5" d="M56,56 L-4.1,116.1 A85,85 0 0,1 -29,56 Z" />
+              <path className="login-brand__slice login-brand__slice--6" d="M56,56 L-29,56 A85,85 0 0,1 -4.1,-4.1 Z" />
+              <path className="login-brand__slice login-brand__slice--7" d="M56,56 L-4.1,-4.1 A85,85 0 0,1 56,-29 Z" />
+            </svg>
+          </div>
         </div>
 
         <div className="login-scrub" aria-hidden="true">

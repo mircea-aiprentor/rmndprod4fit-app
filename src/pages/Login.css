@@ -55,12 +55,12 @@
   box-shadow: 0 0 16px rgba(215, 255, 61, 0.6);
   transform: rotate(-12deg) translateX(-100%);
   opacity: 0;
-  animation: streak-sweep 0.55s cubic-bezier(0.2, 0.9, 0.3, 1) forwards;
+  animation: streak-sweep 0.72s cubic-bezier(0.2, 0.9, 0.3, 1) forwards;
 }
 .login-intro__streak--1 { top: 22%; animation-delay: 0s; }
-.login-intro__streak--2 { top: 40%; animation-delay: 0.07s; }
-.login-intro__streak--3 { top: 58%; animation-delay: 0.14s; }
-.login-intro__streak--4 { top: 74%; animation-delay: 0.21s; }
+.login-intro__streak--2 { top: 40%; animation-delay: 0.09s; }
+.login-intro__streak--3 { top: 58%; animation-delay: 0.18s; }
+.login-intro__streak--4 { top: 74%; animation-delay: 0.27s; }
 @keyframes streak-sweep {
   0% { transform: rotate(-12deg) translateX(-100%); opacity: 0; }
   12% { opacity: 1; }
@@ -68,94 +68,62 @@
   100% { transform: rotate(-12deg) translateX(160%); opacity: 0; }
 }
 
-/* --- Cadru de film care zboară, ca un clip tăiat --- */
-.login-intro__clip {
+/* --- Puls cardiac, ecou fitness — monitor ECG cu cometă luminoasă --- */
+.login-intro__pulse-wrap {
   position: absolute;
-  top: 30%;
-  left: -12%;
-  width: 64px;
-  height: 40px;
-  border: 2px solid var(--accent);
-  border-radius: 6px;
-  background: rgba(18, 20, 23, 0.6);
-  box-shadow: 0 0 18px rgba(215, 255, 61, 0.45);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 6px;
+  left: 4%;
+  right: 4%;
+  top: 80%;
+  height: 84px;
+  overflow: hidden;
   opacity: 0;
-  animation: clip-fly 0.6s cubic-bezier(0.3, 0.7, 0.4, 1) 0.12s forwards;
+  animation: pulse-wrap-in 0.2s ease-out 0.07s forwards, pulse-fade 0.39s ease-in 1.10s forwards;
 }
-.login-intro__clip-hole {
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background: var(--accent);
-  opacity: 0.8;
-}
-@keyframes clip-fly {
-  0% { left: -12%; opacity: 0; transform: rotate(0deg); }
-  15% { opacity: 1; }
-  80% { opacity: 1; }
-  100% { left: 108%; opacity: 0; transform: rotate(18deg); }
-}
-
-/* --- Puls cardiac, ecou fitness --- */
 .login-intro__pulse {
   position: absolute;
-  left: 8%;
-  right: 8%;
-  top: 62%;
-  height: 60px;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
   overflow: visible;
 }
-.login-intro__pulse path {
+.login-intro__pulse-base {
   fill: none;
   stroke: var(--accent);
-  stroke-width: 2.5;
+  stroke-width: 2;
   stroke-linecap: round;
   stroke-linejoin: round;
-  filter: drop-shadow(0 0 6px rgba(215, 255, 61, 0.6));
-  stroke-dasharray: 480;
-  stroke-dashoffset: 480;
-  animation: pulse-draw 0.85s ease-out 0.08s forwards, pulse-fade 0.3s ease-in 0.85s forwards;
+  opacity: 0.28;
 }
-@keyframes pulse-draw {
-  to { stroke-dashoffset: 0; }
+.login-intro__pulse-comet {
+  fill: none;
+  stroke: #ffffff;
+  stroke-width: 3.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  filter: drop-shadow(0 0 10px rgba(215, 255, 61, 0.9)) drop-shadow(0 0 20px rgba(215, 255, 61, 0.5));
+  stroke-dasharray: 55 1400;
+  stroke-dashoffset: 900;
+  animation: comet-run 1.17s cubic-bezier(0.25, 0.65, 0.3, 1) 0.10s forwards;
+}
+.login-intro__pulse-head {
+  fill: #ffffff;
+  filter: drop-shadow(0 0 8px rgba(215, 255, 61, 1)) drop-shadow(0 0 18px rgba(215, 255, 61, 0.7));
+  opacity: 0;
+  animation: head-in 0.12s ease-out 0.10s forwards;
+}
+@keyframes comet-run {
+  0% { stroke-dashoffset: 900; }
+  100% { stroke-dashoffset: -100; }
+}
+@keyframes head-in {
+  to { opacity: 1; }
+}
+@keyframes pulse-wrap-in {
+  to { opacity: 1; }
 }
 @keyframes pulse-fade {
   to { opacity: 0; }
-}
-
-/* --- Lama de tăiere + flash-ul de cut --- */
-.login-intro__blade {
-  position: absolute;
-  top: -5%;
-  bottom: -5%;
-  left: -2%;
-  width: 3px;
-  background: linear-gradient(180deg, transparent, #ffffff 20%, var(--accent) 50%, #ffffff 80%, transparent);
-  box-shadow: 0 0 24px rgba(215, 255, 61, 0.9), 0 0 60px rgba(215, 255, 61, 0.5);
-  opacity: 0;
-  animation: blade-sweep 0.38s cubic-bezier(0.4, 0, 0.2, 1) 0.42s forwards;
-}
-@keyframes blade-sweep {
-  0% { left: -2%; opacity: 0; }
-  8% { opacity: 1; }
-  92% { opacity: 1; }
-  100% { left: 102%; opacity: 0; }
-}
-.login-intro__flash {
-  position: absolute;
-  inset: 0;
-  background: radial-gradient(circle at 50% 45%, rgba(215, 255, 61, 0.55), transparent 65%);
-  opacity: 0;
-  animation: cut-flash 0.22s ease-out 0.56s forwards;
-}
-@keyframes cut-flash {
-  0% { opacity: 0; }
-  35% { opacity: 1; }
-  100% { opacity: 0; }
 }
 
 /* ============================================================
@@ -171,7 +139,7 @@
   padding: 44px 30px 30px;
   box-shadow: var(--shadow-card), 0 0 60px rgba(215, 255, 61, 0.06);
   opacity: 0;
-  animation: card-enter 0.55s cubic-bezier(0.16, 1, 0.3, 1) 0.56s forwards;
+  animation: card-enter 0.72s cubic-bezier(0.16, 1, 0.3, 1) 0.73s forwards;
 }
 @keyframes card-enter {
   from { opacity: 0; transform: translateY(18px) scale(0.97); }
@@ -186,7 +154,7 @@
   border: 2.5px solid var(--accent);
   opacity: 0.55;
   filter: drop-shadow(0 0 6px rgba(215, 255, 61, 0.5));
-  animation: corner-pulse 3.2s ease-in-out 1.2s infinite;
+  animation: corner-pulse 3.2s ease-in-out 1.55s infinite;
   pointer-events: none;
 }
 .login-card__corner--tl {
@@ -198,19 +166,19 @@
   top: -1px; right: -1px;
   border-left: none; border-bottom: none;
   border-top-right-radius: 10px;
-  animation-delay: 1.35s;
+  animation-delay: 1.70s;
 }
 .login-card__corner--bl {
   bottom: -1px; left: -1px;
   border-right: none; border-top: none;
   border-bottom-left-radius: 10px;
-  animation-delay: 1.5s;
+  animation-delay: 1.85s;
 }
 .login-card__corner--br {
   bottom: -1px; right: -1px;
   border-left: none; border-top: none;
   border-bottom-right-radius: 10px;
-  animation-delay: 1.65s;
+  animation-delay: 2.00s;
 }
 @keyframes corner-pulse {
   0%, 100% { opacity: 0.4; }
@@ -222,7 +190,16 @@
   justify-content: center;
   margin-bottom: 4px;
 }
+.login-brand__aperture {
+  position: relative;
+  width: 112px;
+  height: 112px;
+}
+
+/* --- Logo-ul, apare cu fade sincronizat cu irisul, apoi plutește discret --- */
 .login-brand__logo {
+  position: relative;
+  z-index: 1;
   width: 112px;
   height: 112px;
   border-radius: 26px;
@@ -230,6 +207,47 @@
     0 0 0 1px rgba(215, 255, 61, 0.15),
     0 0 44px rgba(215, 255, 61, 0.22),
     0 12px 28px rgba(0, 0, 0, 0.45);
+  opacity: 0;
+  transform: scale(0.92);
+  animation:
+    logo-reveal 0.7s cubic-bezier(0.22, 1, 0.36, 1) 0.8s forwards,
+    logo-float 4.2s ease-in-out 1.6s infinite;
+}
+@keyframes logo-reveal {
+  to { opacity: 1; transform: scale(1); }
+}
+@keyframes logo-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+
+/* --- Irisul mecanic: 8 segmente circulare exacte, se retrag radial spre margine --- */
+.login-brand__iris {
+  position: absolute;
+  z-index: 2;
+  top: 0;
+  left: 0;
+  overflow: visible;
+}
+.login-brand__slice {
+  fill: #1b1e23;
+  stroke: rgba(215, 255, 61, 0.12);
+  stroke-width: 1;
+  animation: slice-retract 0.75s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+/* fiecare segment se micșorează spre punctul median al propriei margini exterioare */
+.login-brand__slice--0 { transform-origin: 88.5px -22.5px; animation-delay: 0.78s; }
+.login-brand__slice--1 { transform-origin: 134.5px 23.5px; animation-delay: 0.792s; }
+.login-brand__slice--2 { transform-origin: 134.5px 88.5px; animation-delay: 0.804s; }
+.login-brand__slice--3 { transform-origin: 88.5px 134.5px; animation-delay: 0.816s; }
+.login-brand__slice--4 { transform-origin: 23.5px 134.5px; animation-delay: 0.828s; }
+.login-brand__slice--5 { transform-origin: -22.5px 88.5px; animation-delay: 0.840s; }
+.login-brand__slice--6 { transform-origin: -22.5px 23.5px; animation-delay: 0.852s; }
+.login-brand__slice--7 { transform-origin: 23.5px -22.5px; animation-delay: 0.864s; }
+@keyframes slice-retract {
+  0% { transform: scale(1); opacity: 1; }
+  85% { opacity: 1; }
+  100% { transform: scale(0.3); opacity: 0; }
 }
 
 /* --- Scrub bar, ecou al montajului video --- */
@@ -256,7 +274,7 @@
   border-radius: 3px;
   background: linear-gradient(90deg, transparent, var(--accent) 40%, var(--accent) 60%, transparent);
   box-shadow: 0 0 10px rgba(215, 255, 61, 0.7);
-  animation: scrub-move 2.6s ease-in-out 1.2s infinite;
+  animation: scrub-move 2.6s ease-in-out 1.55s infinite;
 }
 @keyframes scrub-move {
   0% { left: -34%; }
@@ -266,11 +284,11 @@
 .login-subtitle {
   margin: 18px 0 30px;
   color: var(--text-muted);
-  font-size: 12px;
+  font-size: 15px;
   font-weight: 500;
   text-align: center;
   text-transform: uppercase;
-  letter-spacing: 0.14em;
+  letter-spacing: 0.12em;
 }
 .login-form {
   display: flex;
@@ -388,4 +406,6 @@
 @media (prefers-reduced-motion: reduce) {
   .login-intro { display: none; }
   .login-card { opacity: 1; animation: none; }
+  .login-brand__iris { display: none; }
+  .login-brand__logo { opacity: 1; transform: none; animation: none; }
 }
