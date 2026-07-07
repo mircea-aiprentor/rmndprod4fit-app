@@ -13,6 +13,7 @@ export default function RenderScreen({ reelId, onDone, onCancel }) {
   const [percent, setPercent] = useState(2)
   const [stepIndex, setStepIndex] = useState(0)
   const [failed, setFailed] = useState(false)
+  const [completed, setCompleted] = useState(false)
   const startTimeRef = useRef(Date.now())
 
   // creștere vizuală continuă, se apropie de 92% dar nu ajunge singură la 100%
@@ -46,7 +47,8 @@ export default function RenderScreen({ reelId, onDone, onCancel }) {
       if (data.status === 'done') {
         setPercent(100)
         setStepIndex(STEPS.length)
-        setTimeout(() => !cancelled && onDone?.(), 500)
+        setCompleted(true)
+        setTimeout(() => !cancelled && onDone?.(), 1400)
       } else if (data.status === 'error') {
         setFailed(true)
       }
@@ -64,8 +66,8 @@ export default function RenderScreen({ reelId, onDone, onCancel }) {
 
   return (
     <div className="render-screen">
-      <div className="render-dial">
-        <div className="render-dial__scan" />
+      <div className={`render-dial ${completed ? 'render-dial--done' : ''}`}>
+        {!completed && <div className="render-dial__scan" />}
         <div
           className="render-dial__arc"
           style={{
@@ -75,21 +77,32 @@ export default function RenderScreen({ reelId, onDone, onCancel }) {
           }}
         />
         <div className="render-dial__center">
-          <span className="render-dial__pct">{failed ? '✕' : `${Math.round(percent)}%`}</span>
-          <span className="render-dial__lbl">{failed ? 'eroare' : 'randare'}</span>
+          {completed ? (
+            <svg className="render-check" viewBox="0 0 52 52">
+              <circle className="render-check__circle" cx="26" cy="26" r="23" />
+              <path className="render-check__mark" d="M14 27 L22 35 L39 17" />
+            </svg>
+          ) : (
+            <>
+              <span className="render-dial__pct">{failed ? '✕' : `${Math.round(percent)}%`}</span>
+              <span className="render-dial__lbl">{failed ? 'eroare' : 'randare'}</span>
+            </>
+          )}
         </div>
       </div>
 
       <h2 className="render-title">
-        {failed ? 'Ceva n-a mers bine' : 'Reelul prinde formă'}
+        {completed ? 'Reel gata!' : failed ? 'Ceva n-a mers bine' : 'Reelul prinde formă'}
       </h2>
       <p className="render-sub">
-        {failed
+        {completed
+          ? 'Îl găsești în Istoric, gata de descărcat și postat.'
+          : failed
           ? 'Randarea a eșuat. Poți încerca din nou din Editor.'
           : 'Combinăm clipurile, adăugăm subtitrări sincronizate și potrivim tăieturile pe ritm.'}
       </p>
 
-      {!failed && (
+      {!failed && !completed && (
         <div className="render-steps">
           {STEPS.map((step, i) => (
             <div
@@ -103,9 +116,11 @@ export default function RenderScreen({ reelId, onDone, onCancel }) {
         </div>
       )}
 
-      <button type="button" className="render-cancel" onClick={onCancel}>
-        {failed ? 'Înapoi la istoric' : 'Trimite în fundal'}
-      </button>
+      {!completed && (
+        <button type="button" className="render-cancel" onClick={onCancel}>
+          {failed ? 'Înapoi la istoric' : 'Trimite în fundal'}
+        </button>
+      )}
     </div>
   )
 }
