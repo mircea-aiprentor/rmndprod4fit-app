@@ -23,18 +23,18 @@ export default function Dashboard({ trainer, onLogout }) {
           Deconectează-te
         </button>
       </header>
-      <nav className="dashboard-tabs">
+      <nav className="dashboard-seg">
         <button
-          className={`dashboard-tab ${activeTab === 'form' ? 'dashboard-tab--active' : ''}`}
+          className={`dashboard-seg__btn ${activeTab === 'form' ? 'dashboard-seg__btn--active' : ''}`}
           onClick={() => setActiveTab('form')}
         >
-          Generează reel
+          Editor
         </button>
         <button
-          className={`dashboard-tab ${activeTab === 'history' ? 'dashboard-tab--active' : ''}`}
+          className={`dashboard-seg__btn ${activeTab === 'history' ? 'dashboard-seg__btn--active' : ''}`}
           onClick={() => setActiveTab('history')}
         >
-          Istoricul meu
+          Istoric
         </button>
       </nav>
       <div className="dashboard-content" key={activeTab}>
