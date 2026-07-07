@@ -1,0 +1,159 @@
+.render-screen {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 4px;
+}
+
+.render-dial {
+  width: 148px;
+  height: 148px;
+  border-radius: 50%;
+  position: relative;
+  margin-bottom: 22px;
+  background: var(--surface-raised);
+  border: 1px solid var(--border);
+  box-shadow: 0 0 40px -6px rgba(200, 234, 0, 0.18);
+}
+.render-dial__scan {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  overflow: hidden;
+}
+.render-dial__scan::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 40%;
+  background: linear-gradient(rgba(200, 234, 0, 0.16), transparent);
+  animation: render-scan 2.2s linear infinite;
+}
+@keyframes render-scan {
+  0% { top: -40%; }
+  100% { top: 100%; }
+}
+.render-dial__arc {
+  position: absolute;
+  inset: 8px;
+  border-radius: 50%;
+  transition: background 0.3s linear;
+}
+.render-dial__arc::before {
+  content: "";
+  position: absolute;
+  inset: 12px;
+  border-radius: 50%;
+  background: var(--surface);
+}
+.render-dial__center {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+.render-dial__pct {
+  font-family: var(--font-mono);
+  font-size: 27px;
+  font-weight: 700;
+  color: var(--text);
+}
+.render-dial__lbl {
+  font-size: 9px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  font-weight: 700;
+  margin-top: 3px;
+}
+
+.render-title {
+  font-family: var(--font-display);
+  font-size: 19px;
+  font-weight: 900;
+  letter-spacing: -0.02em;
+  margin-bottom: 8px;
+  color: var(--text);
+}
+.render-sub {
+  font-size: 12.5px;
+  font-weight: 300;
+  color: var(--text-muted);
+  line-height: 1.6;
+  max-width: 260px;
+  margin: 0 0 24px;
+}
+
+.render-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 11px;
+  width: 100%;
+  max-width: 280px;
+  text-align: left;
+  margin-bottom: 26px;
+}
+.render-step {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 12.5px;
+  color: var(--text-dim);
+  font-weight: 500;
+  transition: color 0.2s;
+}
+.render-step__dot {
+  width: 17px;
+  height: 17px;
+  border-radius: 5px;
+  border: 1.5px solid var(--border);
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  transition: all 0.2s;
+  color: transparent;
+}
+.render-step--done .render-step__dot {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--accent-contrast);
+}
+.render-step--done {
+  color: var(--text);
+}
+.render-step--now .render-step__dot {
+  border-color: var(--accent);
+  box-shadow: 0 0 8px var(--accent-glow);
+}
+.render-step--now {
+  color: var(--accent);
+}
+
+.render-cancel {
+  width: 100%;
+  max-width: 280px;
+  text-align: center;
+  padding: 13px 0;
+  border-radius: 11px;
+  border: 1px solid var(--border);
+  font-family: var(--font-body);
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--text-muted);
+  background: transparent;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.render-cancel:hover {
+  border-color: var(--text-muted);
+  color: var(--text);
+}

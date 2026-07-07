@@ -89,7 +89,7 @@ function VideoThumb({ file, className }) {
   )
 }
 
-export default function ReelForm({ trainer, onReelCreated }) {
+export default function ReelForm({ trainer, onRenderStart }) {
   const [mode, setMode] = useState('prompt') // prompt | subtitle
   const [muscleGroup, setMuscleGroup] = useState('')
   const [contentType, setContentType] = useState('')
@@ -236,13 +236,13 @@ export default function ReelForm({ trainer, onReelCreated }) {
         throw new Error('Trimiterea către n8n a eșuat.')
       }
 
-      setStatus('done')
+      setStatus('idle')
       setMuscleGroup('')
       setContentType('')
       setAltceva('')
       setMusicChoice('')
       setClips([null])
-      onReelCreated?.()
+      onRenderStart?.(reelRow.id)
     } catch (err) {
       console.error(err)
       setErrorMessage(err.message || 'A apărut o eroare.')
@@ -339,7 +339,6 @@ export default function ReelForm({ trainer, onReelCreated }) {
         {status === 'submitting' ? 'Se urcă și se trimite...' : 'Generează reel'}
       </button>
 
-      {status === 'done' && <p className="editor-status editor-status--ok">Trimis cu succes! Vezi progresul în „Istoricul meu".</p>}
       {status === 'error' && <p className="editor-status editor-status--error">{errorMessage || 'A apărut o problemă. Încearcă din nou.'}</p>}
 
       <BottomSheet isOpen={activeSheet === 'mode'} title={sheetTitles.mode} onClose={() => setActiveSheet(null)}>
