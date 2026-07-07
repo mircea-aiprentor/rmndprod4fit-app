@@ -5,7 +5,7 @@ import { supabase } from '../supabaseClient'
 import CustomSelect from '../components/CustomSelect'
 import './ReelForm.css'
 
-const MIN_CLIPS = 2
+const MIN_CLIPS = 1
 const MAX_CLIPS = 6
 const NO_MUSIC_OPTIONS = [{ id: '', label: 'Fără muzică' }, ...MUSIC_TRACKS]
 
@@ -16,7 +16,7 @@ export default function ReelForm({ trainer, onReelCreated }) {
   const [altceva, setAltceva] = useState('')
   const [musicChoice, setMusicChoice] = useState('') // '' = fără muzică
   const [playingTrack, setPlayingTrack] = useState(null)
-  const [clips, setClips] = useState([null, null])
+  const [clips, setClips] = useState([null])
   const [status, setStatus] = useState('idle') // idle | submitting | done | error
   const [errorMessage, setErrorMessage] = useState('')
 
@@ -171,7 +171,7 @@ export default function ReelForm({ trainer, onReelCreated }) {
       setContentType('')
       setAltceva('')
       setMusicChoice('')
-      setClips([null, null])
+      setClips([null])
       onReelCreated?.()
     } catch (err) {
       console.error(err)
