@@ -61,14 +61,17 @@
 }
 .cchip {
   font-family: var(--font-body);
-  font-size: 11px;
+  font-size: 9.5px;
   font-weight: 600;
   background: rgba(10, 11, 13, 0.72);
   backdrop-filter: blur(6px);
   color: var(--text);
-  padding: 6px 12px;
+  padding: 5px 10px;
   border-radius: 20px;
   border: 1px solid var(--border-soft);
+  display: flex;
+  align-items: center;
+  gap: 5px;
 }
 .cchip--lime {
   background: var(--accent);
@@ -85,17 +88,18 @@
 }
 .canvas__strip {
   display: flex;
-  gap: 4px;
+  gap: 3px;
   width: 100%;
-  padding: 0 14px;
+  height: 64px;
+  padding: 0 10px;
   position: absolute;
-  bottom: 40px;
+  bottom: 36px;
   left: 0;
 }
 .cstrip-clip {
   flex: 1;
-  height: 72px;
-  border-radius: 10px;
+  height: 100%;
+  border-radius: 8px;
   min-width: 0;
   border: 1px solid rgba(255, 255, 255, 0.12);
   object-fit: cover;
@@ -103,10 +107,10 @@
 }
 .canvas__dur {
   position: absolute;
-  bottom: 12px;
-  right: 16px;
+  bottom: 10px;
+  right: 14px;
   font-family: var(--font-mono);
-  font-size: 11px;
+  font-size: 9.5px;
   color: var(--text-muted);
   z-index: 3;
 }
@@ -115,7 +119,7 @@
 .tool-tray {
   display: flex;
   gap: 2px;
-  padding: 4px 2px 14px;
+  padding: 0 10px 14px;
   flex-shrink: 0;
   overflow-x: auto;
   scrollbar-width: none;
@@ -125,13 +129,13 @@
 }
 .tool-btn {
   flex: 1;
-  min-width: 56px;
+  min-width: 52px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 6px;
-  padding: 10px 4px;
-  border-radius: 14px;
+  gap: 5px;
+  padding: 9px 2px;
+  border-radius: 12px;
   cursor: pointer;
   position: relative;
   transition: background 0.15s;
@@ -146,8 +150,8 @@
   cursor: not-allowed;
 }
 .tool-btn__icon {
-  width: 26px;
-  height: 26px;
+  width: 34px;
+  height: 34px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -163,7 +167,7 @@
 }
 .tool-btn__label {
   font-family: var(--font-body);
-  font-size: 10px;
+  font-size: 9px;
   font-weight: 500;
   color: var(--text-dim);
   letter-spacing: 0.01em;
@@ -173,10 +177,10 @@
 }
 .tool-btn__badge {
   position: absolute;
-  top: 2px;
-  right: 0px;
+  top: 4px;
+  right: 2px;
   font-family: var(--font-mono);
-  font-size: 8.5px;
+  font-size: 7.5px;
   font-weight: 700;
   background: var(--surface-3);
   color: var(--text-muted);
