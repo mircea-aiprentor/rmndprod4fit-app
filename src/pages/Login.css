@@ -282,6 +282,88 @@
   margin: 0 0 12px;
   text-align: center;
 }
+.login-notice {
+  color: var(--accent);
+  font-size: 12.5px;
+  font-weight: 500;
+  margin: 0 0 12px;
+  text-align: center;
+  line-height: 1.5;
+}
+.login-forgot {
+  background: none;
+  border: none;
+  color: var(--text-dim);
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  margin-top: 14px;
+  text-align: center;
+  width: 100%;
+}
+.login-forgot:hover {
+  color: var(--text-muted);
+}
+.login-divider {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 22px 0 16px;
+}
+.login-divider::before,
+.login-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+.login-divider span {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-dim);
+  white-space: nowrap;
+}
+.login-google {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  background: var(--surface-raised);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 13px 0;
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.login-google:hover:not(:disabled) {
+  border-color: var(--text-dim);
+  background: var(--surface-3);
+}
+.login-google:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.login-switch {
+  width: 100%;
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 12.5px;
+  font-weight: 500;
+  cursor: pointer;
+  margin-top: 18px;
+  text-align: center;
+}
+.login-switch:hover {
+  color: var(--accent);
+}
 .keypad {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
