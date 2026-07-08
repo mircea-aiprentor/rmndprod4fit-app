@@ -27,6 +27,8 @@ export default function Profile({ trainer, onBack, onLogout }) {
   const [reels, setReels] = useState([])
   const [avatarUploading, setAvatarUploading] = useState(false)
   const [avatarUrl, setAvatarUrl] = useState(trainer.avatar_url || null)
+  const [planGroup, setPlanGroup] = useState('platform') // platform | pro
+  const [selectedPlanId, setSelectedPlanId] = useState(null)
 
   useEffect(() => {
     let active = true
@@ -83,7 +85,6 @@ export default function Profile({ trainer, onBack, onLogout }) {
 
     setAvatarUploading(true)
     try {
-      // notă: necesită endpoint dedicat pentru avatar — vine în pasul următor
       const presignRes = await fetch('/api/get-avatar-upload-url', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -103,10 +104,13 @@ export default function Profile({ trainer, onBack, onLogout }) {
     }
   }
 
+  const visiblePlans = allPlans.filter((p) => p.is_plus === (planGroup === 'pro'))
+  const selectedPlan = allPlans.find((p) => p.id === selectedPlanId) || null
+
   return (
-    <div className="profile-screen">
-      <div className="profile-top">
-        <button className="profile-back" onClick={onBack} aria-label="Înapoi">‹</button>
+    <div className="editor-screen profile-screen">
+      <div className="edits-top">
+        <button className="edits-x" onClick={onBack} aria-label="Înapoi">‹</button>
         <span className="profile-top__title">Profil</span>
         <span style={{ width: 30 }} />
       </div>
@@ -126,15 +130,16 @@ export default function Profile({ trainer, onBack, onLogout }) {
           <h2 className="profile-name">{trainer.name}</h2>
 
           {plan ? (
-            <span className="profile-badge" style={{ '--badge-color': plan.badge_color }}>
-              {plan.badge_label}
-            </span>
+            <div className="profile-emblem" style={{ '--badge-color': plan.badge_color }}>
+              <span className="profile-emblem__ring" />
+              <span className="profile-emblem__label">{plan.badge_label}</span>
+            </div>
           ) : (
-            <span className="profile-badge profile-badge--none">Fără plan activ</span>
+            <span className="cchip">Fără plan activ</span>
           )}
         </div>
 
-        <div className="profile-section-title">Analitici</div>
+        <div className="plans-sub" style={{ padding: '0 0 4px' }}>Analitici</div>
         <div className="profile-stats">
           <div className="profile-stat">
             <div className="profile-stat__value">{totalReels}</div>
@@ -150,12 +155,12 @@ export default function Profile({ trainer, onBack, onLogout }) {
           </div>
           <div className="profile-stat profile-stat--accent">
             <div className="profile-stat__value">{estimatedSavedMinutes}m</div>
-            <div className="profile-stat__label">Timp economisit* </div>
+            <div className="profile-stat__label">Timp economisit*</div>
           </div>
         </div>
-        <p className="profile-stat-note">*estimat, față de editare manuală (~25 min/reel)</p>
+        <p className="plans-foot-note">*estimat, față de editare manuală (~25 min/reel)</p>
 
-        <div className="profile-section-title">Activitate recentă</div>
+        <div className="plans-sub" style={{ padding: '10px 0 4px' }}>Activitate recentă</div>
         <div className="profile-activity">
           {loading && <p className="profile-empty">Se încarcă...</p>}
           {!loading && recentActivity.length === 0 && (
@@ -170,24 +175,58 @@ export default function Profile({ trainer, onBack, onLogout }) {
           ))}
         </div>
 
-        <div className="profile-section-title">Planul tău</div>
-        <div className="profile-plans">
-          {allPlans.map((p) => (
-            <div
-              key={p.id}
-              className={`profile-plan-card ${plan?.id === p.id ? 'profile-plan-card--current' : ''}`}
-            >
-              <div className="profile-plan-card__head">
-                <span className="profile-plan-card__name">{p.name}</span>
-                {plan?.id === p.id && <span className="profile-plan-card__current-tag">Activ</span>}
-              </div>
-              <div className="profile-plan-card__price">{p.price_label}</div>
-            </div>
-          ))}
+        <div className="plans-top" style={{ padding: '14px 0 0' }}>
+          <div className="plans-title">Planuri</div>
+          {plan && <div className="plans-badge">Planul tău: {plan.name}</div>}
+        </div>
+        <div className="plans-sub" style={{ padding: '6px 0 10px' }}>
+          Două moduri de lucru — de la un tool AI, până la <b>done-for-you</b> complet.
         </div>
 
-        <button className="profile-cta" disabled>
-          Alege / schimbă planul — disponibil în pasul următor
+        <div className="pill-toggle" style={{ margin: '0 0 12px' }}>
+          <div
+            className={`pill ${planGroup === 'platform' ? 'pill--on' : 'pill--off'}`}
+            onClick={() => setPlanGroup('platform')}
+          >
+            Platform
+          </div>
+          <div
+            className={`pill ${planGroup === 'pro' ? 'pill--on' : 'pill--off'}`}
+            onClick={() => setPlanGroup('pro')}
+          >
+            + Professional
+          </div>
+        </div>
+
+        {visiblePlans.map((p) => {
+          const isCurrent = plan?.id === p.id
+          const isSelected = selectedPlanId === p.id
+          return (
+            <div
+              key={p.id}
+              className={`plan-card ${isSelected ? 'plan-card--selected' : ''} ${isCurrent ? 'plan-card--current' : ''}`}
+              onClick={() => setSelectedPlanId(isSelected ? null : p.id)}
+            >
+              <div className="plan-card-head">
+                <div className="plan-name">{p.name}{isCurrent ? ' · activ' : ''}</div>
+                <div className="plan-check">✓</div>
+              </div>
+              <div className="plan-desc">{p.description}</div>
+              <div className="plan-price-row">
+                <div className="plan-price">{p.price_label}</div>
+                <div className="plan-price-yr">{p.price_yearly_label}</div>
+              </div>
+              <div className="plan-select-btn">{isCurrent ? 'Planul curent' : 'Alege planul'}</div>
+            </div>
+          )
+        })}
+
+        <div className="plans-foot-note">
+          Fiecare plan: lunar sau anual −29%. Gym-Studio: prețul afișat = până la 5 antrenori.
+        </div>
+
+        <button className="generate-btn" disabled style={{ marginTop: 14 }}>
+          {selectedPlan ? `Continuă cu ${selectedPlan.name} — disponibil în pasul următor` : 'Alege un plan mai sus'}
         </button>
 
         {plan && (
