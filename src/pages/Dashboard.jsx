@@ -2,10 +2,11 @@ import { useState } from 'react'
 import ReelForm from './ReelForm'
 import ReelHistory from './ReelHistory'
 import RenderScreen from './RenderScreen'
+import Profile from './Profile'
 import './Dashboard.css'
 
 export default function Dashboard({ trainer, onLogout }) {
-  const [view, setView] = useState('editor') // editor | render | history
+  const [view, setView] = useState('editor') // editor | render | history | profile
   const [refreshSignal, setRefreshSignal] = useState(0)
   const [renderingReelId, setRenderingReelId] = useState(null)
 
@@ -39,7 +40,7 @@ export default function Dashboard({ trainer, onLogout }) {
         </button>
       </header>
 
-      {view !== 'render' && (
+      {view !== 'render' && view !== 'profile' && (
         <nav className="dashboard-seg">
           <button
             className={`dashboard-seg__btn ${view === 'editor' ? 'dashboard-seg__btn--active' : ''}`}
@@ -57,11 +58,20 @@ export default function Dashboard({ trainer, onLogout }) {
       )}
 
       <div className="dashboard-content" key={view}>
-        {view === 'editor' && <ReelForm trainer={trainer} onRenderStart={handleRenderStart} />}
+        {view === 'editor' && (
+          <ReelForm
+            trainer={trainer}
+            onRenderStart={handleRenderStart}
+            onOpenProfile={() => setView('profile')}
+          />
+        )}
         {view === 'render' && (
           <RenderScreen reelId={renderingReelId} onDone={handleRenderDone} onCancel={handleRenderExit} />
         )}
         {view === 'history' && <ReelHistory trainer={trainer} refreshSignal={refreshSignal} />}
+        {view === 'profile' && (
+          <Profile trainer={trainer} onBack={() => setView('editor')} onLogout={onLogout} />
+        )}
       </div>
     </div>
   )

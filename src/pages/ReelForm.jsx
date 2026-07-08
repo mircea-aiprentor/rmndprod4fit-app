@@ -1,6 +1,5 @@
-import { useEffect, useRef, useState } from 'react'
+import { useState } from 'react'
 import { MUSCLE_GROUPS, CONTENT_TYPES } from '../data/reelOptions'
-import { MUSIC_TRACKS } from '../data/musicTracks'
 import { supabase } from '../supabaseClient'
 import BottomSheet from '../components/BottomSheet'
 import './ReelForm.css'
@@ -15,14 +14,7 @@ const ICONS = {
       <circle cx="12" cy="12" r="2.4" />
     </svg>
   ),
-  muscle: (
-    <svg viewBox="0 0 24 24" fill="none" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-      <rect x="2" y="9" width="3.4" height="6" rx="1" />
-      <rect x="18.6" y="9" width="3.4" height="6" rx="1" />
-      <line x1="5.4" y1="12" x2="18.6" y2="12" />
-    </svg>
-  ),
-  type: (
+  tema: (
     <svg viewBox="0 0 24 24" fill="none" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
       <rect x="4" y="3" width="16" height="18" rx="2" />
       <line x1="8" y1="8" x2="16" y2="8" />
@@ -37,11 +29,10 @@ const ICONS = {
       <line x1="15.7" y1="5" x2="15.7" y2="19" />
     </svg>
   ),
-  music: (
+  profile: (
     <svg viewBox="0 0 24 24" fill="none" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-      <circle cx="7" cy="18" r="2.8" />
-      <circle cx="17" cy="16" r="2.8" />
-      <path d="M9.8 18V5.5L19.8 3.5V16" />
+      <circle cx="12" cy="8.5" r="3.4" />
+      <path d="M4.8 20c1.2-3.6 4-5.4 7.2-5.4s6 1.8 7.2 5.4" />
     </svg>
   ),
   note: (
@@ -63,15 +54,13 @@ function ReticleCorner({ className }) {
 
 function VideoThumb({ file, className }) {
   const [url, setUrl] = useState(null)
-  useEffect(() => {
-    if (!file) {
-      setUrl(null)
-      return
-    }
-    const objectUrl = URL.createObjectURL(file)
-    setUrl(objectUrl)
-    return () => URL.revokeObjectURL(objectUrl)
-  }, [file])
+  const [prevFile, setPrevFile] = useState(null)
+
+  if (file !== prevFile) {
+    setPrevFile(file)
+    if (url) URL.revokeObjectURL(url)
+    setUrl(file ? URL.createObjectURL(file) : null)
+  }
 
   if (!url) return null
 
@@ -89,37 +78,18 @@ function VideoThumb({ file, className }) {
   )
 }
 
-export default function ReelForm({ trainer, onRenderStart }) {
+export default function ReelForm({ trainer, onRenderStart, onOpenProfile }) {
   const [mode, setMode] = useState('prompt') // prompt | subtitle
   const [muscleGroup, setMuscleGroup] = useState('')
   const [contentType, setContentType] = useState('')
   const [altceva, setAltceva] = useState('')
-  const [musicChoice, setMusicChoice] = useState('') // '' = fără muzică
-  const [playingTrack, setPlayingTrack] = useState(null)
   const [clips, setClips] = useState([null])
   const [status, setStatus] = useState('idle') // idle | submitting | done | error
   const [errorMessage, setErrorMessage] = useState('')
   const [activeSheet, setActiveSheet] = useState(null)
 
-  const audioRef = useRef(null)
-
   const usesFreeText = mode === 'prompt' && altceva.trim().length > 0
   const filledClipsCount = clips.filter(Boolean).length
-
-  const togglePreview = (trackId) => {
-    const track = MUSIC_TRACKS.find((t) => t.id === trackId)
-    if (!track) return
-    if (playingTrack === track.id) {
-      audioRef.current?.pause()
-      setPlayingTrack(null)
-      return
-    }
-    if (audioRef.current) {
-      audioRef.current.src = track.url
-      audioRef.current.play()
-    }
-    setPlayingTrack(track.id)
-  }
 
   const handleClipChange = (index, file) => {
     setClips((prev) => {
@@ -172,7 +142,6 @@ export default function ReelForm({ trainer, onRenderStart }) {
         .insert({
           trainer_id: trainer.id,
           tema: temaLabel,
-          music_choice: musicChoice || null,
           status: 'processing',
         })
         .select()
@@ -222,7 +191,6 @@ export default function ReelForm({ trainer, onRenderStart }) {
         tema: temaValue,
         muscle_group: muscleGroupValue,
         content_type: contentTypeValue,
-        music_choice: musicChoice || null,
         clip_urls: clipUrls,
       }
 
@@ -240,7 +208,6 @@ export default function ReelForm({ trainer, onRenderStart }) {
       setMuscleGroup('')
       setContentType('')
       setAltceva('')
-      setMusicChoice('')
       setClips([null])
       onRenderStart?.(reelRow.id)
     } catch (err) {
@@ -258,32 +225,29 @@ export default function ReelForm({ trainer, onRenderStart }) {
   if (mode === 'prompt' && contentType) {
     chips.push({ text: CONTENT_TYPES.find((c) => c.id === contentType)?.label || contentType })
   }
-  if (musicChoice) {
-    chips.push({ text: `♪ ${MUSIC_TRACKS.find((m) => m.id === musicChoice)?.label || musicChoice}` })
-  }
 
   const toolButtons = [
     { key: 'mode', label: 'Mod', set: true },
-    { key: 'muscle', label: 'Grupă', set: mode === 'prompt' && !!muscleGroup, disabled: mode !== 'prompt' },
-    { key: 'type', label: 'Tip', set: mode === 'prompt' && !!contentType, disabled: mode !== 'prompt' },
+    {
+      key: 'tema',
+      label: 'Temă',
+      set: mode === 'prompt' && !!muscleGroup && !!contentType,
+      disabled: mode !== 'prompt',
+    },
     { key: 'clips', label: 'Clipuri', set: filledClipsCount >= MIN_CLIPS, badge: `${filledClipsCount}/${MAX_CLIPS}` },
-    { key: 'music', label: 'Muzică', set: !!musicChoice },
     { key: 'note', label: 'Notă', set: altceva.trim().length > 0 },
+    { key: 'profile', label: 'Profil', set: false, action: 'profile' },
   ]
 
   const sheetTitles = {
     mode: 'Ce vrei să faci?',
-    muscle: 'Grupă musculară',
-    type: 'Tip conținut',
+    tema: 'Tema reel-ului',
     clips: `Clipuri (${filledClipsCount} din ${MAX_CLIPS}, minim ${MIN_CLIPS})`,
-    music: 'Muzică',
     note: 'Altceva? (opțional)',
   }
 
   return (
     <div className="editor-screen">
-      <audio ref={audioRef} onEnded={() => setPlayingTrack(null)} />
-
       <div className="canvas reticle">
         <ReticleCorner className="reticle-corner--tl" />
         <ReticleCorner className="reticle-corner--tr" />
@@ -320,7 +284,14 @@ export default function ReelForm({ trainer, onRenderStart }) {
             type="button"
             key={btn.key}
             className={`tool-btn ${btn.set ? 'tool-btn--set' : ''} ${btn.disabled ? 'tool-btn--disabled' : ''}`}
-            onClick={() => !btn.disabled && setActiveSheet(btn.key)}
+            onClick={() => {
+              if (btn.disabled) return
+              if (btn.action === 'profile') {
+                onOpenProfile?.()
+                return
+              }
+              setActiveSheet(btn.key)
+            }}
             disabled={btn.disabled}
           >
             <span className="tool-btn__icon">{ICONS[btn.key]}</span>
@@ -363,67 +334,25 @@ export default function ReelForm({ trainer, onRenderStart }) {
         </div>
       </BottomSheet>
 
-      <BottomSheet isOpen={activeSheet === 'muscle'} title={sheetTitles.muscle} onClose={() => setActiveSheet(null)}>
+      <BottomSheet isOpen={activeSheet === 'tema'} title={sheetTitles.tema} onClose={() => setActiveSheet(null)}>
+        <div className="sheet-hint" style={{ marginBottom: 14 }}>Grupă musculară</div>
         {MUSCLE_GROUPS.map((opt) => (
           <div
             key={opt.id}
             className={`sheet-opt ${muscleGroup === opt.id ? 'sheet-opt--sel' : ''}`}
-            onClick={() => {
-              setMuscleGroup(opt.id)
-              setActiveSheet(null)
-            }}
+            onClick={() => setMuscleGroup(opt.id)}
           >
             {opt.label} {muscleGroup === opt.id ? '✓' : ''}
           </div>
         ))}
-      </BottomSheet>
-
-      <BottomSheet isOpen={activeSheet === 'type'} title={sheetTitles.type} onClose={() => setActiveSheet(null)}>
+        <div className="sheet-hint" style={{ margin: '18px 0 14px' }}>Tip conținut</div>
         {CONTENT_TYPES.map((opt) => (
           <div
             key={opt.id}
             className={`sheet-opt ${contentType === opt.id ? 'sheet-opt--sel' : ''}`}
-            onClick={() => {
-              setContentType(opt.id)
-              setActiveSheet(null)
-            }}
+            onClick={() => setContentType(opt.id)}
           >
             {opt.label} {contentType === opt.id ? '✓' : ''}
-          </div>
-        ))}
-      </BottomSheet>
-
-      <BottomSheet isOpen={activeSheet === 'music'} title={sheetTitles.music} onClose={() => setActiveSheet(null)}>
-        <div
-          className={`sheet-opt ${!musicChoice ? 'sheet-opt--sel' : ''}`}
-          onClick={() => {
-            setMusicChoice('')
-            setActiveSheet(null)
-          }}
-        >
-          Fără muzică {!musicChoice ? '✓' : ''}
-        </div>
-        {MUSIC_TRACKS.map((track) => (
-          <div key={track.id} className={`sheet-opt sheet-opt--music ${musicChoice === track.id ? 'sheet-opt--sel' : ''}`}>
-            <span
-              className="sheet-opt__label"
-              onClick={() => {
-                setMusicChoice(track.id)
-                setActiveSheet(null)
-              }}
-            >
-              {track.label} {musicChoice === track.id ? '✓' : ''}
-            </span>
-            <button
-              type="button"
-              className="sheet-opt__play"
-              onClick={(e) => {
-                e.stopPropagation()
-                togglePreview(track.id)
-              }}
-            >
-              {playingTrack === track.id ? '❚❚' : '▶'}
-            </button>
           </div>
         ))}
       </BottomSheet>
