@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { forwardRef, useEffect, useImperativeHandle, useState } from 'react'
 import { MUSCLE_GROUPS, CONTENT_TYPES } from '../data/reelOptions'
 import { supabase } from '../supabaseClient'
 import BottomSheet from '../components/BottomSheet'
@@ -78,7 +78,7 @@ function VideoThumb({ file, className }) {
   )
 }
 
-export default function ReelForm({ trainer, onRenderStart, onOpenProfile }) {
+const ReelForm = forwardRef(function ReelForm({ trainer, onRenderStart, onOpenProfile, onStateChange }, ref) {
   const [mode, setMode] = useState('prompt') // prompt | subtitle
   const [muscleGroup, setMuscleGroup] = useState('')
   const [contentType, setContentType] = useState('')
@@ -119,6 +119,11 @@ export default function ReelForm({ trainer, onRenderStart, onOpenProfile }) {
     clips.length <= MAX_CLIPS &&
     clips.every((c) => c !== null) &&
     status !== 'submitting'
+
+  useEffect(() => {
+    onStateChange?.({ canSubmit, submitting: status === 'submitting' })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [canSubmit, status])
 
   const handleSubmit = async () => {
     if (!canSubmit) return
@@ -217,6 +222,10 @@ export default function ReelForm({ trainer, onRenderStart, onOpenProfile }) {
     }
   }
 
+  useImperativeHandle(ref, () => ({
+    submit: handleSubmit,
+  }))
+
   const chips = []
   chips.push({ text: mode === 'prompt' ? 'Prompt' : 'Subtitrare', lime: true })
   if (mode === 'prompt' && muscleGroup) {
@@ -300,15 +309,6 @@ export default function ReelForm({ trainer, onRenderStart, onOpenProfile }) {
           </button>
         ))}
       </div>
-
-      <button
-        type="button"
-        className={`generate-btn ${canSubmit ? 'generate-btn--ready' : ''}`}
-        disabled={!canSubmit}
-        onClick={handleSubmit}
-      >
-        {status === 'submitting' ? 'Se urcă și se trimite...' : 'Generează reel'}
-      </button>
 
       {status === 'error' && <p className="editor-status editor-status--error">{errorMessage || 'A apărut o problemă. Încearcă din nou.'}</p>}
 
@@ -401,4 +401,6 @@ export default function ReelForm({ trainer, onRenderStart, onOpenProfile }) {
       </BottomSheet>
     </div>
   )
-}
+})
+
+export default ReelForm

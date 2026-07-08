@@ -1,14 +1,17 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import ReelForm from './ReelForm'
 import ReelHistory from './ReelHistory'
 import RenderScreen from './RenderScreen'
 import Profile from './Profile'
 import './Dashboard.css'
+import './DashboardTopBar.css'
 
 export default function Dashboard({ trainer, onLogout }) {
   const [view, setView] = useState('editor') // editor | render | history | profile
   const [refreshSignal, setRefreshSignal] = useState(0)
   const [renderingReelId, setRenderingReelId] = useState(null)
+  const [formState, setFormState] = useState({ canSubmit: false, submitting: false })
+  const reelFormRef = useRef(null)
 
   const handleRenderStart = (reelId) => {
     setRenderingReelId(reelId)
@@ -27,42 +30,42 @@ export default function Dashboard({ trainer, onLogout }) {
 
   return (
     <div className="dashboard-screen">
-      <header className="dashboard-header">
-        <div className="dashboard-header__identity">
-          <img src="/logo.png" alt="" className="dashboard-header__mark" />
-          <div>
-            <p className="dashboard-eyebrow">Conectat ca</p>
-            <h1 className="dashboard-name">{trainer.name}</h1>
-          </div>
-        </div>
-        <button className="dashboard-logout" onClick={onLogout}>
-          Deconectează-te
-        </button>
-      </header>
-
       {view !== 'render' && view !== 'profile' && (
-        <nav className="dashboard-seg">
+        <div className="edits-top">
+          <button className="edits-x" onClick={onLogout} aria-label="Delogare">✕</button>
+          <div className="edits-seg">
+            <button
+              className={`seg-btn ${view === 'editor' ? 'seg-btn--active' : ''}`}
+              onClick={() => setView('editor')}
+            >
+              Editor
+            </button>
+            <button
+              className={`seg-btn ${view === 'history' ? 'seg-btn--active' : ''}`}
+              onClick={() => setView('history')}
+            >
+              Istoric
+            </button>
+          </div>
           <button
-            className={`dashboard-seg__btn ${view === 'editor' ? 'dashboard-seg__btn--active' : ''}`}
-            onClick={() => setView('editor')}
+            type="button"
+            className={`btn-generate-top ${formState.canSubmit ? 'btn-generate-top--ready' : ''}`}
+            disabled={view !== 'editor' || !formState.canSubmit}
+            onClick={() => reelFormRef.current?.submit()}
           >
-            Editor
+            {formState.submitting ? 'Se trimite...' : 'Generează'}
           </button>
-          <button
-            className={`dashboard-seg__btn ${view === 'history' ? 'dashboard-seg__btn--active' : ''}`}
-            onClick={() => setView('history')}
-          >
-            Istoric
-          </button>
-        </nav>
+        </div>
       )}
 
       <div className="dashboard-content" key={view}>
         {view === 'editor' && (
           <ReelForm
+            ref={reelFormRef}
             trainer={trainer}
             onRenderStart={handleRenderStart}
             onOpenProfile={() => setView('profile')}
+            onStateChange={setFormState}
           />
         )}
         {view === 'render' && (
