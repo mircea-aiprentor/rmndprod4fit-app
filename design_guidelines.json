@@ -1,0 +1,160 @@
+{
+  "theme": "dark",
+  "typography": {
+    "fonts": {
+      "headings": "'Barlow Condensed', sans-serif",
+      "body": "'Inter', sans-serif",
+      "mono": "'JetBrains Mono', monospace"
+    },
+    "hierarchy": {
+      "h1": "text-4xl sm:text-5xl font-black tracking-tighter uppercase",
+      "h2": "text-2xl sm:text-3xl font-bold tracking-tight uppercase",
+      "h3": "text-xl sm:text-2xl font-semibold tracking-tight uppercase",
+      "h4": "text-lg font-medium",
+      "body": "text-sm sm:text-base text-zinc-400 leading-relaxed",
+      "labels": "text-xs font-bold uppercase tracking-[0.2em] text-zinc-500"
+    },
+    "rules": [
+      "Headings MUST use tight letter spacing: tracking-tight or tracking-tighter.",
+      "Overlines / Labels MUST be Uppercase + Tiny + Wide Spacing.",
+      "Line Height: Tight (leading-none) for headers, Loose (leading-relaxed) for body.",
+      "Never use standard sans for headings. Use Barlow Condensed for a heavy-weight athletic feel.",
+      "Add Barlow Condensed and Inter via Google Fonts."
+    ]
+  },
+  "colors": {
+    "archetype": "THE PERFORMANCE PRO",
+    "palette": {
+      "background": "#09090B",
+      "surface_1": "#18181B",
+      "surface_2": "#27272A",
+      "border": "rgba(255, 255, 255, 0.1)",
+      "primary": "#C4F601", 
+      "primary_hover": "#A6D300",
+      "text_primary": "#FFFFFF",
+      "text_secondary": "#A1A1AA",
+      "success": "#4ADE80",
+      "error": "#EF4444",
+      "warning": "#F59E0B",
+      "accent_blue": "#3B82F6"
+    },
+    "rules": [
+      "True Grey Base: Avoid pure #000000 black. Use dark grey surfaces (#09090B to #18181B).",
+      "Layered Elevation: Use background lightness to communicate hierarchy, not shadows. Step surface colors 3-6% lighter for each nested level.",
+      "Semantic Color Tuning: Desaturate success, warning, and error colors for dark surfaces.",
+      "Primary Accent: Neon Volt Green (#C4F601) for primary actions, progress bars, and kinetic triggers to evoke elite athleticism."
+    ]
+  },
+  "visual_enhancers": {
+    "surfaces": [
+      "Grid Borders: Expose the skeleton. Container with border-collapse style layout, items with subtle borders (border-white/10).",
+      "Neumorphism (Tactile): Mix 1px sharp inner contrasts (border-white/5) instead of soft shadows to ensure accessibility on dark mode.",
+      "Solid Backgrounds: Use flat solid surfaces instead of glass to prevent visual refraction of data."
+    ],
+    "effects": [
+      "Tactical Minimalism: Replace soft shadows with 1px solid strokes or 2px 'Inner Glow' highlights.",
+      "No full-screen gradients. Use texture (grain/noise) over gloss.",
+      "CRITICAL: DO NOT use complete transparent background in header, overlays, or any surface that has content under it. Always use solid dark colors (e.g., bg-zinc-950)."
+    ]
+  },
+  "components": {
+    "strategy": "Shadcn UI + Customization for Tactical Minimalism",
+    "rules": [
+      "Go cardless or use rectangular, dense styles. Max 4px to 8px border-radius (rounded-sm or rounded-md).",
+      "Buttons: Sharp edges, solid background with high-contrast text. Example: bg-[#C4F601] text-black font-bold.",
+      "Forms: Use Shadcn Input, Select, Form, Checkbox. Flat backgrounds with 1px border. Never use native inputs.",
+      "Charts: Use Shadcn chart components or Recharts with dark-first palettes. Desaturated gridlines.",
+      "Use sonner for toast notifications."
+    ]
+  },
+  "grids_and_layouts": {
+    "spacing": [
+      "Generous Spacing Philosophy: Use p-6 or p-8 for internal container padding to prevent text collision.",
+      "Bento Grid Protocol (High Density): Base grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4. Tight gaps (gap-4 or gap-6).",
+      "Summary widgets: col-span-1. Primary data/video: col-span-2 or col-span-3."
+    ],
+    "rules": [
+      "Mobile-First: Always start with grid-cols-1.",
+      "Sidebar Navigation: Fixed on desktop, hidden behind a hamburger menu on mobile.",
+      "Grid items MUST be direct children of grid containers."
+    ]
+  },
+  "motion": {
+    "rules": [
+      "Minimalist animations: use micro-interactions for feedback.",
+      "Hover states on all interactive elements (must explicitly set text color on hover, e.g., hover:bg-zinc-800 hover:text-white).",
+      "Focus states: HIGHER contrast than default state (e.g., focus:ring-[#C4F601]).",
+      "MUST respect prefers-reduced-motion."
+    ]
+  },
+  "accessibility": {
+    "rules": [
+      "Normal Text: Minimum 4.5:1 contrast ratio.",
+      "Large Text: Minimum 3:1 contrast ratio.",
+      "NEVER rely on inheritance for hover text colors.",
+      "Add aria-hidden='true' to purely decorative animations/icons.",
+      "All interactive and key informational elements MUST include a data-testid attribute (e.g., data-testid='upload-video-button')."
+    ]
+  },
+  "media": {
+    "rules": [
+      "Mobile Height Limit: Images MUST NOT exceed 80vh on mobile.",
+      "Overlay Opacity: max bg-black/50 for hero/video overlays.",
+      "Video Thumbnails: Use high-quality fitness action shots with play button overlays."
+    ]
+  },
+  "3d_libraries": {
+    "rules": [
+      "Not required for this dense dashboard. Prioritize Recharts for performance and clarity.",
+      "Use lucide-react for iconography."
+    ]
+  },
+  "image_urls": {
+    "video_thumbnails": [
+      {
+        "url": "https://images.unsplash.com/photo-1540206063137-4a88ca974d1a",
+        "description": "Woman kneeling on mat - useful for raw workout footage thumbnail."
+      },
+      {
+        "url": "https://images.pexels.com/photos/2011383/pexels-photo-2011383.jpeg",
+        "description": "Personal trainer helping woman - useful for AI generated Reel thumbnail."
+      }
+    ],
+    "avatars": [
+      {
+        "url": "https://images.unsplash.com/photo-1516224498413-84ecf3a1e7fd",
+        "description": "Coach profile portrait in grayscale - perfect for user avatar."
+      },
+      {
+        "url": "https://images.pexels.com/photos/32695885/pexels-photo-32695885.jpeg",
+        "description": "Confident fitness coach - alternative user avatar."
+      }
+    ]
+  },
+  "instructions_to_main_agent": [
+    "Build a modern SaaS dashboard for 'Panou Antrenor' (ELVISPROCUT.RO) in Romanian language.",
+    "The app uses standard .js / .jsx files (NOT .tsx). Do not write TypeScript syntax.",
+    "Apply the 'Performance Pro' dark theme with Deep Obsidian backgrounds (#09090B) and Neon Volt Green (#C4F601) accents.",
+    "Pages to build: Auth (Login/Register via email & Google), Dashboard Overview (stats: reels created, quota, recent projects), Video Project Management (upload progress, AI edit plan review: transcript, hook, caption, CTA, hashtags, suggested cuts, music), and Subscription/Billing (Stripe tiers: Coach, Coach+, Gym/Studio).",
+    "Use Shadcn components, customized for 'Tactical Minimalism' (flat, 1px borders, minimal radii, intense neon accents for CTAs).",
+    "Incorporate data-testid attributes on ALL interactive elements.",
+    "Avoid using complete transparent backgrounds for dropdowns, sidebars, or sticky headers.",
+    "Use 'sonner' for toast notifications."
+  ],
+  "UNIVERSAL_GUIDELINES_FOR_MAIN_AGENT": [
+    "Do not converge toward generic 'AI slop' aesthetics. Use the defined typography (Barlow Condensed for headers, Inter for body) and tight layout rules.",
+    "Create depth through layered design elements with z-index hierarchy and background lightness (no heavy drop shadows).",
+    "DO NOT apply universal transitions (e.g., transition: all). Target specific properties.",
+    "DO NOT center align the app container in App.css.",
+    "Always explicitly set text colors on hover/focus states.",
+    "NEVER use emoji characters for icons; use lucide-react.",
+    "Prioritize reusing components from src/components/ui.",
+    "Implement micro-animations for hover, focus, and loading states."
+  ],
+  "GENERAL_UI_UX_DESIGN_GUIDELINES": [
+    "Design with intent: every screen must have a clear primary action (e.g., 'Încarcă video' or 'Aprobă Reel').",
+    "Visual Hierarchy: Use Barlow Condensed for high-impact metric numbers and headers, keeping Inter for dense table data.",
+    "Frictionless Forms: Reviewing the AI plan should feel like a simple checklist, with clear 'Aprobă' or 'Regenerează' actions.",
+    "Consistent Alignment: Left-align forms, tables, and dense data. Center-align only empty states or specific modal actions."
+  ]
+}
