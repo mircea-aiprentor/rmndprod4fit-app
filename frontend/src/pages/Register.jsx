@@ -3,8 +3,9 @@ import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
 import api, { formatApiError } from "@/lib/api";
 import { REGISTER } from "@/constants/testIds";
-import { Dumbbell, Loader2, AlertCircle } from "lucide-react";
+import { Loader2, AlertCircle } from "lucide-react";
 import { toast } from "sonner";
+import Logo from "@/components/Logo";
 
 export default function Register() {
   const { applyAuth } = useAuth();
@@ -42,11 +43,8 @@ export default function Register() {
   return (
     <div className="min-h-screen flex items-center justify-center p-6 bg-[#09090B] grain-bg">
       <form onSubmit={submit} className="w-full max-w-sm animate-fade-up">
-        <div className="flex items-center gap-2 mb-8">
-          <div className="w-9 h-9 rounded-md bg-[#C4F601] flex items-center justify-center">
-            <Dumbbell className="w-5 h-5 text-black" aria-hidden="true" />
-          </div>
-          <span className="font-heading font-black text-xl tracking-tighter uppercase">ElvisPro Cut</span>
+        <div className="mb-8">
+          <Logo size={44} subtitle={null} />
         </div>
         <p className="text-xs font-bold uppercase tracking-[0.2em] text-zinc-500">Panou Antrenor</p>
         <h2 className="font-heading text-3xl font-black tracking-tight uppercase mt-2 mb-8">Creează cont</h2>

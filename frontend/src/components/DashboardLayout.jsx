@@ -1,8 +1,9 @@
 import { NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
 import { NAV, LOGOUT } from "@/constants/testIds";
-import { LayoutDashboard, Clapperboard, CreditCard, LogOut, Dumbbell, Menu, X } from "lucide-react";
+import { LayoutDashboard, Clapperboard, CreditCard, LogOut, Menu, X } from "lucide-react";
 import { useState } from "react";
+import Logo from "@/components/Logo";
 
 const links = [
   { to: "/dashboard", label: "Panou", icon: LayoutDashboard, testid: NAV.linkDashboard },
@@ -22,14 +23,8 @@ export default function DashboardLayout({ children }) {
 
   const SidebarInner = () => (
     <div className="flex flex-col h-full">
-      <div className="flex items-center gap-2 px-6 h-20 border-b border-white/10">
-        <div className="w-9 h-9 rounded-md bg-[#C4F601] flex items-center justify-center">
-          <Dumbbell className="w-5 h-5 text-black" aria-hidden="true" />
-        </div>
-        <div>
-          <div className="font-heading font-black text-lg tracking-tighter uppercase leading-none">Panou Antrenor</div>
-          <div className="text-[10px] uppercase tracking-[0.2em] text-zinc-500">ElvisPro Cut</div>
-        </div>
+      <div className="flex items-center px-6 h-20 border-b border-white/10">
+        <Logo size={40} />
       </div>
       <nav className="flex-1 px-3 py-6 space-y-1">
         {links.map((l) => (
@@ -82,12 +77,7 @@ export default function DashboardLayout({ children }) {
 
       {/* Mobile header */}
       <div className="lg:hidden sticky top-0 z-40 flex items-center justify-between h-16 px-4 bg-[#0f0f11] border-b border-white/10">
-        <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-md bg-[#C4F601] flex items-center justify-center">
-            <Dumbbell className="w-4 h-4 text-black" aria-hidden="true" />
-          </div>
-          <span className="font-heading font-black tracking-tighter uppercase">Panou Antrenor</span>
-        </div>
+        <Logo size={34} subtitle={null} />
         <button data-testid={NAV.mobileToggle} onClick={() => setOpen(!open)} className="p-2 text-white">
           {open ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
         </button>

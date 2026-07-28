@@ -103,12 +103,14 @@ class TestProjectsFlow:
             "notes": "Test notes",
             "storage_path": TestProjectsFlow.storage_path,
             "filename": "dummy.mp4",
+            "size": "2056",
         }
         r = requests.post(f"{API}/projects", headers=auth_headers, data=data, timeout=30)
         assert r.status_code == 200, r.text
         proj = r.json()
         assert proj["title"] == "TEST_Video_Antrenament"
         assert proj["status"] == "uploaded"
+        assert proj.get("size") == 2056
         assert "_id" not in proj
         TestProjectsFlow.project_id = proj["id"]
 
@@ -163,8 +165,12 @@ class TestDashboard:
         r = session.get(f"{API}/dashboard/stats", headers=auth_headers)
         assert r.status_code == 200
         d = r.json()
-        for k in ("total_projects", "this_month", "approved", "quota", "quota_used"):
-            assert k in d
+        for k in ("total_projects", "this_month", "approved", "quota", "quota_used",
+                  "credits_remaining", "storage_bytes", "storage_gb_limit", "time_saved_min"):
+            assert k in d, f"missing dashboard field: {k}"
+        assert isinstance(d["credits_remaining"], int)
+        assert isinstance(d["storage_bytes"], int)
+        assert d["storage_gb_limit"] == 25
 
 
 # ---------------- Billing ----------------

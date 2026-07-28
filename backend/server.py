@@ -240,13 +240,13 @@ async def download_file(path: str, auth: str = Query(None),
 @api.post("/projects")
 async def create_project(
     title: str = Form(...), theme: str = Form("General"), notes: str = Form(""),
-    storage_path: str = Form(...), filename: str = Form(""),
+    storage_path: str = Form(...), filename: str = Form(""), size: int = Form(0),
     user: dict = Depends(get_current_user),
 ):
     project = {
         "id": str(uuid.uuid4()), "user_id": user["id"], "title": title,
         "theme": theme, "notes": notes, "storage_path": storage_path,
-        "filename": filename, "status": "uploaded", "plan": None,
+        "filename": filename, "size": size, "status": "uploaded", "plan": None,
         "created_at": datetime.now(timezone.utc).isoformat(),
         "updated_at": datetime.now(timezone.utc).isoformat(),
     }
@@ -358,8 +358,18 @@ async def dashboard_stats(user: dict = Depends(get_current_user)):
     in_review = await db.projects.count_documents({"user_id": user["id"], "status": "review"})
     plan_key = user.get("plan")
     quota = PLAN_META.get(plan_key, {}).get("quota", 3)
+    # storage used
+    storage_bytes = 0
+    async for p in db.projects.find({"user_id": user["id"]}, {"size": 1}):
+        storage_bytes += int(p.get("size") or 0)
+    # ~2h manual editing saved per generated reel (review or approved)
+    edited = await db.projects.count_documents({"user_id": user["id"], "status": {"$in": ["review", "approved"]}})
+    time_saved_min = edited * 120
     return {"total_projects": total, "approved": approved, "this_month": this_month,
             "in_review": in_review, "quota": quota, "quota_used": this_month,
+            "credits_remaining": max(quota - this_month, 0),
+            "storage_bytes": storage_bytes, "storage_gb_limit": 25,
+            "time_saved_min": time_saved_min,
             "plan": plan_key, "plan_name": user.get("plan_name")}
 
 
