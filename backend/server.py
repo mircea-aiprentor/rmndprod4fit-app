@@ -242,12 +242,15 @@ async def download_file(path: str, auth: str = Query(None),
 async def create_project(
     title: str = Form(...), theme: str = Form("General"), notes: str = Form(""),
     storage_path: str = Form(...), filename: str = Form(""), size: int = Form(0),
+    mode: str = Form("prompt"),
     user: dict = Depends(get_current_user),
 ):
+    if mode not in ("prompt", "subtitle"):
+        mode = "prompt"
     project = {
         "id": str(uuid.uuid4()), "user_id": user["id"], "title": title,
         "theme": theme, "notes": notes, "storage_path": storage_path,
-        "filename": filename, "size": size, "status": "uploaded", "plan": None,
+        "filename": filename, "size": size, "mode": mode, "status": "uploaded", "plan": None,
         "created_at": datetime.now(timezone.utc).isoformat(),
         "updated_at": datetime.now(timezone.utc).isoformat(),
     }

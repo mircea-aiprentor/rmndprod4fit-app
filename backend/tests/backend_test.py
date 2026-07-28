@@ -212,6 +212,70 @@ class TestGenerateModes:
             requests.delete(f"{API}/projects/{pid}", headers=auth_headers)
 
 
+# ---------------- Create-time mode form field ----------------
+class TestCreateModeFormField:
+    """New: POST /api/projects accepts 'mode' form field and stores it on the project."""
+
+    def _upload(self, auth_headers):
+        files = {"file": ("dummy.mp4", io.BytesIO(b"\x00\x00\x00\x18ftypmp42" + b"0" * 1024), "video/mp4")}
+        r = requests.post(f"{API}/upload", headers=auth_headers, files=files, timeout=60)
+        assert r.status_code == 200
+        return r.json()["storage_path"]
+
+    def _create(self, auth_headers, mode_value):
+        sp = self._upload(auth_headers)
+        data = {"title": f"TEST_UploadMode_{mode_value or 'none'}", "theme": "General",
+                "notes": "", "storage_path": sp, "filename": "dummy.mp4", "size": "1032"}
+        if mode_value is not None:
+            data["mode"] = mode_value
+        r = requests.post(f"{API}/projects", headers=auth_headers, data=data, timeout=30)
+        return r
+
+    def test_create_with_subtitle_mode(self, auth_headers):
+        r = self._create(auth_headers, "subtitle")
+        assert r.status_code == 200, r.text
+        proj = r.json()
+        pid = proj["id"]
+        try:
+            assert proj.get("mode") == "subtitle"
+            # verify persisted via GET
+            g = requests.get(f"{API}/projects/{pid}", headers=auth_headers, timeout=30)
+            assert g.status_code == 200
+            assert g.json().get("mode") == "subtitle"
+        finally:
+            requests.delete(f"{API}/projects/{pid}", headers=auth_headers)
+
+    def test_create_with_prompt_mode(self, auth_headers):
+        r = self._create(auth_headers, "prompt")
+        assert r.status_code == 200
+        proj = r.json()
+        pid = proj["id"]
+        try:
+            assert proj.get("mode") == "prompt"
+        finally:
+            requests.delete(f"{API}/projects/{pid}", headers=auth_headers)
+
+    def test_create_default_mode_is_prompt(self, auth_headers):
+        r = self._create(auth_headers, None)
+        assert r.status_code == 200
+        proj = r.json()
+        pid = proj["id"]
+        try:
+            assert proj.get("mode") == "prompt", f"default should be prompt, got {proj.get('mode')!r}"
+        finally:
+            requests.delete(f"{API}/projects/{pid}", headers=auth_headers)
+
+    def test_create_invalid_mode_falls_back_to_prompt(self, auth_headers):
+        r = self._create(auth_headers, "bogus_mode")
+        assert r.status_code == 200
+        proj = r.json()
+        pid = proj["id"]
+        try:
+            assert proj.get("mode") == "prompt"
+        finally:
+            requests.delete(f"{API}/projects/{pid}", headers=auth_headers)
+
+
 # ---------------- Dashboard ----------------
 class TestDashboard:
     def test_stats(self, session, auth_headers):

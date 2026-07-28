@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import DashboardLayout from "@/components/DashboardLayout";
 import api, { formatApiError } from "@/lib/api";
 import { PROJECTS } from "@/constants/testIds";
-import { Plus, UploadCloud, Loader2, Clapperboard, X, CheckCircle2, Film } from "lucide-react";
+import { Plus, UploadCloud, Loader2, Clapperboard, X, CheckCircle2, Film, Wand2, Subtitles } from "lucide-react";
 import { toast } from "sonner";
 
 const THEMES = ["General", "Antrenament forță", "Cardio & HIIT", "Nutriție", "Motivațional", "Transformare client"];
@@ -93,6 +93,7 @@ function UploadModal({ onClose, onDone, onCreated }) {
   const [title, setTitle] = useState("");
   const [theme, setTheme] = useState("General");
   const [notes, setNotes] = useState("");
+  const [mode, setMode] = useState("prompt");
   const [file, setFile] = useState(null);
   const [preview, setPreview] = useState(null);
   const [progress, setProgress] = useState(0);
@@ -125,6 +126,7 @@ function UploadModal({ onClose, onDone, onCreated }) {
       pf.append("title", title); pf.append("theme", theme); pf.append("notes", notes);
       pf.append("storage_path", up.data.storage_path); pf.append("filename", up.data.filename);
       pf.append("size", up.data.size || file.size);
+      pf.append("mode", mode);
       const proj = await api.post("/projects", pf);
       setDone(true);
       setTimeout(() => onCreated(proj.data.id), 1100);
@@ -158,6 +160,23 @@ function UploadModal({ onClose, onDone, onCreated }) {
         ) : (
           <>
             <h2 className="font-heading text-2xl font-bold mb-6">Încarcă video brut</h2>
+
+            <label className={labelCls}>Ce vrei să faci?</label>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-3">
+              <button type="button" data-testid="upload-mode-prompt" onClick={() => setMode("prompt")} className={`flex items-center gap-2.5 px-4 py-3 rounded-lg border font-bold text-sm transition-colors text-left ${mode === "prompt" ? "bg-[#C4F601] border-[#C4F601] text-black" : "bg-zinc-900 border-white/10 text-zinc-300 hover:bg-zinc-800 hover:text-white"}`}>
+                <Wand2 className="w-4 h-4 shrink-0" aria-hidden="true" /> Prompt (aleg eu tema)
+              </button>
+              <button type="button" data-testid="upload-mode-subtitle" onClick={() => setMode("subtitle")} className={`flex items-center gap-2.5 px-4 py-3 rounded-lg border font-bold text-sm transition-colors text-left ${mode === "subtitle" ? "bg-[#C4F601] border-[#C4F601] text-black" : "bg-zinc-900 border-white/10 text-zinc-300 hover:bg-zinc-800 hover:text-white"}`}>
+                <Subtitles className="w-4 h-4 shrink-0" aria-hidden="true" /> Subtitrare (doar transcrie)
+              </button>
+            </div>
+            <div className="text-sm text-zinc-400 bg-zinc-900 border border-white/5 rounded-lg p-3 mb-6">
+              {mode === "prompt"
+                ? "Alegem grupa musculară și tipul de conținut, apoi generăm un script nou pentru reel."
+                : "Transcriem exact ce se spune în video și generăm subtitrări sincronizate, gata de export."}
+            </div>
+
+            <label className={labelCls}>Fișier video</label>
 
             <label
               onDragOver={(e) => { e.preventDefault(); setDrag(true); }}
