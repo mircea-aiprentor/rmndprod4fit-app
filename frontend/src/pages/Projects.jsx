@@ -204,15 +204,19 @@ function UploadModal({ onClose, onDone, onCreated }) {
             )}
 
             <label className={labelCls}>Titlu</label>
-            <input data-testid={PROJECTS.titleInput} value={title} onChange={(e) => setTitle(e.target.value)} className={inputCls + " mb-5"} placeholder="Ex: Antrenament picioare - superset" />
+            <input data-testid={PROJECTS.titleInput} value={title} onChange={(e) => setTitle(e.target.value)} className={inputCls + (mode === "prompt" ? " mb-5" : " mb-6")} placeholder="Ex: Antrenament picioare - superset" />
 
-            <label className={labelCls}>Temă</label>
-            <select data-testid={PROJECTS.themeSelect} value={theme} onChange={(e) => setTheme(e.target.value)} className={inputCls + " mb-5"}>
-              {THEMES.map((t) => <option key={t} value={t}>{t}</option>)}
-            </select>
+            {mode === "prompt" && (
+              <>
+                <label className={labelCls}>Temă</label>
+                <select data-testid={PROJECTS.themeSelect} value={theme} onChange={(e) => setTheme(e.target.value)} className={inputCls + " mb-5"}>
+                  {THEMES.map((t) => <option key={t} value={t}>{t}</option>)}
+                </select>
 
-            <label className={labelCls}>Note pentru AI (opțional)</label>
-            <textarea data-testid={PROJECTS.notesInput} value={notes} onChange={(e) => setNotes(e.target.value)} rows={3} className={inputCls + " mb-6 resize-none"} placeholder="Ce vrei să evidențiezi, tonul dorit, publicul țintă..." />
+                <label className={labelCls}>Note pentru AI (opțional)</label>
+                <textarea data-testid={PROJECTS.notesInput} value={notes} onChange={(e) => setNotes(e.target.value)} rows={3} className={inputCls + " mb-6 resize-none"} placeholder="Ce vrei să evidențiezi, tonul dorit, publicul țintă..." />
+              </>
+            )}
 
             {busy && (
               <div className="mb-4">
