@@ -1,34 +1,37 @@
 # PRD — Panou Antrenor (ElvisPro Cut)
 
-## Problem statement
-Audit & improve the coach dashboard for elvisprocut.ro. The connected GitHub repo contained ONLY the default Emergent boilerplate (no real app code), so — per user confirmation — we built a fresh, modern "Panou Antrenor" from scratch matching the brand in spirit.
+## Ce este
+Interfață FRONTEND pentru aplicația ElvisPro Cut (elvisprocut.ro): antrenorii încarcă clipuri brute și primesc Reels (9:16) cu subtitrări, hook, caption, CTA, hashtags. Motorul real de procesare este n8n + alte aplicații (NU este construit aici — acest proiect e doar interfața + un backend demo care simulează motorul).
 
-## Product
-Romanian SaaS for fitness coaches: upload raw training video → AI generates a short-form Reels editing plan (transcript/subtitles, hook, caption, CTA, hashtags, suggested cuts, music) → coach reviews/approves/exports. Subscription tiers via Stripe.
+## Constatare audit inițial
+Repo-ul GitHub conectat conținea DOAR boilerplate-ul Emergent (fără app real). Confirmat de user → construit de la zero, păstrând identitatea brandului.
 
-## Users
-- Solo online/gym coaches (Coach, Coach+)
-- Gyms/studios managing up to 5 coaches (Gym/Studio)
+## Tech / Arhitectură
+- Frontend: React 19 (craco), Tailwind, shadcn/ui, framer-motion, sonner, lucide. Temă dark „Performance Pro" (font Sora headings + Inter body, accent verde-neon #C4F601). Logo real ElvisPro Cut (/logo.jpeg).
+- Backend: FastAPI + MongoDB (motor). JWT Bearer (localStorage `pa_token`).
+- Integrări: Claude Sonnet 4.6 (Emergent LLM key) ca motor demo; Emergent object storage (video); Stripe subscriptions (claimable sandbox, RON).
 
-## Tech / Architecture
-- Frontend: React 19 (CRA/craco), Tailwind, shadcn/ui, sonner, lucide, recharts. Dark "Performance Pro" theme (Barlow Condensed + Inter, neon volt green #C4F601).
-- Backend: FastAPI + MongoDB (motor). JWT Bearer auth (localStorage pa_token).
-- Integrations: Claude Sonnet 4.6 (Emergent LLM key) for AI plans; Emergent object storage for videos; Stripe subscriptions (claimable sandbox, RON).
+## Funcționalități implementate (iunie 2026)
+- Auth email/parolă (JWT), cont demo seed.
+- Proiecte: upload video (drag & drop, preview, progres), CRUD.
+- Mod de lucru „Ce vrei să faci?": **Prompt (aleg eu tema)** → script complet reel; **Subtitrare (doar transcrie)** → doar subtitrări sincronizate. Selectorul e un buton; procesarea reală = n8n.
+- Rezultate read-only: subtitrări sincronizate (badge timp), previzualizare burned-in pe preview 9:16, export .SRT + copiere; în modul Prompt și hook/caption/CTA/hashtags/tăieturi.
+- Workflow timeline (Upload → Procesare → Review → Aprobare → Export) + animație pași AI.
+- Dashboard: 4 statistici (animate), widget abonament cu „Reels-uri rămase" (fără stocare), sfat AI, reels recente.
+- Billing: 3 planuri Stripe (Coach 89 / Coach+ 339 / Gym-Studio 799 RON), checkout, webhook, payment-success.
+- Responsive (sidebar desktop / drawer mobil). Erori clare (toast) în română.
 
-## Implemented (2026-06)
-- Auth: email/password register/login, JWT, seeded demo coach.
-- Projects: upload video, CRUD, AI plan generation + edit + approve.
-- Dashboard: stats (total, month, approved, quota) + recent projects.
-- Billing: 3 Stripe plans, checkout, webhook, payment-success polling.
-- Responsive layout (sidebar desktop / drawer mobile). Toast error handling.
-- Tested: 17/17 backend + all frontend flows pass (iteration_1).
+## Testare
+- iteration_1: 17/17 backend + frontend ✅
+- iteration_2 (redesign, font, logo): backend 17/17 + frontend ✅
+- iteration_3 (mode selector + widget): backend 19/19 + frontend ✅
 
-## Prioritized backlog
-- P1: Google social login (currently placeholder "coming soon").
-- P1: Real server-side video processing (9:16 crop + burned subtitles) — deferred Phase 2.
-- P1: Suggested coach features (await user confirm): client/athlete management, scheduling/calendar, progress tracking, notifications, training plans.
-- P2: Stripe billing portal (manage/cancel), export/download of approved reels, forgot/reset password UI, brute-force lockout.
-- P2: Pagination on projects, thumbnail previews from video.
+## Backlog / Faza 2
+- Google login real (acum buton „în curând").
+- Conectare reală la n8n webhooks (înlocuiește backend-ul demo Claude).
+- Procesare video server-side reală (crop 9:16, subtitrări arse).
+- Funcții dashboard propuse: management clienți, calendar, analytics, notificări, șabloane.
+- Portal facturare Stripe, forgot/reset password UI.
 
-## Next tasks
-Await user confirmation on which 3–5 dashboard features to build next.
+## Credențiale
+Vezi /app/memory/test_credentials.md (demo: antrenor@elvisprocut.ro / Antrenor2025!).
