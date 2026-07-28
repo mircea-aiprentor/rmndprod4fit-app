@@ -8,7 +8,7 @@ import { useAuth } from "@/context/AuthContext";
 import { DASHBOARD } from "@/constants/testIds";
 import {
   Clapperboard, CheckCircle2, Calendar, Clock, Plus, ArrowRight, Loader2,
-  UploadCloud, CreditCard, HardDrive, Zap, Lightbulb, Sparkles,
+  UploadCloud, CreditCard, Zap, Lightbulb, Sparkles,
 } from "lucide-react";
 
 const STATUS_LABEL = {
@@ -31,11 +31,6 @@ function fmtTime(min = 0) {
   const m = min % 60;
   if (h === 0) return `${m}m`;
   return m === 0 ? `${h}h` : `${h}h ${m}m`;
-}
-function fmtStorage(bytes = 0) {
-  const mb = bytes / (1024 * 1024);
-  if (mb < 1024) return `${mb.toFixed(mb < 10 ? 1 : 0)} MB`;
-  return `${(mb / 1024).toFixed(2)} GB`;
 }
 
 const fade = { hidden: { opacity: 0, y: 14 }, show: (i = 0) => ({ opacity: 1, y: 0, transition: { delay: i * 0.05, duration: 0.4, ease: "easeOut" } }) };
@@ -78,7 +73,6 @@ export default function Dashboard() {
   }, []);
 
   const quotaPct = stats?.quota ? Math.min((stats.quota_used / stats.quota) * 100, 100) : 0;
-  const storagePct = stats ? Math.min((stats.storage_bytes / (stats.storage_gb_limit * 1024 ** 3)) * 100, 100) : 0;
 
   return (
     <DashboardLayout>
@@ -179,21 +173,11 @@ export default function Dashboard() {
 
                   <div className="mt-5">
                     <div className="flex justify-between text-xs mb-1.5">
-                      <span className="text-zinc-400 flex items-center gap-1"><Zap className="w-3.5 h-3.5 text-[#C4F601]" aria-hidden="true" /> Credite reels</span>
-                      <span className="text-white font-medium">{stats?.quota_used ?? 0}/{stats?.quota ?? 0}</span>
+                      <span className="text-zinc-400 flex items-center gap-1"><Zap className="w-3.5 h-3.5 text-[#C4F601]" aria-hidden="true" /> Reels-uri rămase</span>
+                      <span className="text-white font-medium">{stats?.credits_remaining ?? 0} / {stats?.quota ?? 0}</span>
                     </div>
                     <div className="h-2 bg-zinc-800 rounded-full overflow-hidden">
                       <motion.div className="h-full bg-[#C4F601]" initial={{ width: 0 }} animate={{ width: `${quotaPct}%` }} transition={{ duration: 0.8, ease: "easeOut" }} />
-                    </div>
-                  </div>
-
-                  <div className="mt-4">
-                    <div className="flex justify-between text-xs mb-1.5">
-                      <span className="text-zinc-400 flex items-center gap-1"><HardDrive className="w-3.5 h-3.5 text-[#C4F601]" aria-hidden="true" /> Stocare</span>
-                      <span className="text-white font-medium">{fmtStorage(stats?.storage_bytes || 0)} / {stats?.storage_gb_limit} GB</span>
-                    </div>
-                    <div className="h-2 bg-zinc-800 rounded-full overflow-hidden">
-                      <motion.div className="h-full bg-blue-400" initial={{ width: 0 }} animate={{ width: `${Math.max(storagePct, 2)}%` }} transition={{ duration: 0.8, ease: "easeOut" }} />
                     </div>
                   </div>
 

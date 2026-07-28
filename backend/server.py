@@ -139,6 +139,7 @@ class PlanUpdate(BaseModel):
     cta: Optional[str] = None
     hashtags: Optional[List[str]] = None
     subtitles: Optional[str] = None
+    subtitle_segments: Optional[List[dict]] = None
     music_theme: Optional[str] = None
     suggested_cuts: Optional[List[dict]] = None
 
@@ -277,21 +278,33 @@ async def delete_project(project_id: str, user: dict = Depends(get_current_user)
     return {"ok": True}
 
 
-async def generate_ai_plan(title: str, theme: str, notes: str) -> dict:
+async def generate_ai_plan(title: str, theme: str, notes: str, mode: str = "prompt") -> dict:
     from emergentintegrations.llm.chat import LlmChat, UserMessage
-    system = (
-        "Ești un editor video expert specializat în conținut short-form (Reels 9:16) pentru "
-        "antrenori și profesioniști din fitness. Generezi un plan de editare complet în limba română. "
-        "Răspunzi DOAR cu JSON valid, fără text suplimentar, folosind exact această structură: "
-        '{"hook": "string (primele 3 secunde, captivant)", '
-        '"subtitles": "string (transcriere/subtitrări sugerate, 2-4 propoziții)", '
-        '"caption": "string (descriere pentru postare)", '
-        '"cta": "string (call to action)", '
-        '"hashtags": ["#tag1", "#tag2", ...5-8 hashtag-uri], '
-        '"music_theme": "string (gen muzical/mood recomandat)", '
-        '"suggested_cuts": [{"time": "0:00-0:03", "note": "descriere tăietură"}, ...3-5 tăieturi]}'
-    )
-    prompt = f"Titlu video: {title}\nTemă: {theme}\nNote antrenor: {notes or 'niciuna'}\n\nGenerează planul de editare în JSON."
+    if mode == "subtitle":
+        system = (
+            "Ești un motor de transcriere pentru clipuri de fitness. Sarcina ta este DOAR să transcrii "
+            "și să sincronizezi subtitrări în limba română pentru un clip scurt (~20-45 secunde). "
+            "Nu inventa hook sau CTA. Răspunzi DOAR cu JSON valid, fără text suplimentar, cu structura: "
+            '{"subtitles": "string (transcrierea completă ca text continuu)", '
+            '"subtitle_segments": [{"start": 0.0, "end": 2.5, "text": "linie scurtă (max 8 cuvinte)"} pana la 6-12 segmente cronologice cu timpi crescatori, fiecare 1.5-3.5 secunde]}'
+        )
+        prompt = f"Titlu clip: {title}\nTemă: {theme}\nContext: {notes or 'niciun'}\n\nTranscrie și sincronizează subtitrările în JSON."
+    else:
+        system = (
+            "Ești un editor video expert specializat în conținut short-form (Reels 9:16) pentru "
+            "antrenori și profesioniști din fitness. Generezi un plan de editare complet în limba română. "
+            "Cel mai important element sunt SUBTITRĂRILE sincronizate — sunt esențiale pentru aplicație. "
+            "Răspunzi DOAR cu JSON valid, fără text suplimentar, folosind exact această structură: "
+            '{"hook": "string (primele 3 secunde, captivant)", '
+            '"subtitles": "string (transcrierea completă a subtitrărilor, ca text continuu)", '
+            '"subtitle_segments": [{"start": 0.0, "end": 2.5, "text": "linie scurtă de subtitrare (max 8 cuvinte)"} pana la 6-12 segmente cronologice cu timpi crescatori, fiecare 1.5-3.5 secunde], '
+            '"caption": "string (descriere pentru postare)", '
+            '"cta": "string (call to action)", '
+            '"hashtags": ["#tag1", "#tag2" 5-8 hashtag-uri], '
+            '"music_theme": "string (gen muzical/mood recomandat)", '
+            '"suggested_cuts": [{"time": "0:00-0:03", "note": "descriere tăietură"} 3-5 tăieturi]}'
+        )
+        prompt = f"Titlu video: {title}\nTemă: {theme}\nNote antrenor: {notes or 'niciuna'}\n\nGenerează planul de editare în JSON."
     chat = LlmChat(api_key=EMERGENT_KEY, session_id=f"plan-{uuid.uuid4()}", system_message=system).with_model("anthropic", "claude-sonnet-4-6")
     resp = await chat.send_message(UserMessage(text=prompt))
     text = resp if isinstance(resp, str) else str(resp)
@@ -303,24 +316,32 @@ async def generate_ai_plan(title: str, theme: str, notes: str) -> dict:
     start, end = text.find("{"), text.rfind("}")
     if start != -1 and end != -1:
         text = text[start:end + 1]
-    return json.loads(text)
+    try:
+        return json.loads(text)
+    except json.JSONDecodeError:
+        import re
+        cleaned = re.sub(r",(\s*[}\]])", r"\1", text)  # trailing commas
+        cleaned = re.sub(r"\.\.\.", "", cleaned)          # stray ellipsis
+        return json.loads(cleaned)
 
 
 @api.post("/projects/{project_id}/generate-plan")
-async def generate_plan(project_id: str, user: dict = Depends(get_current_user)):
+async def generate_plan(project_id: str, mode: str = "prompt", user: dict = Depends(get_current_user)):
     doc = await db.projects.find_one({"id": project_id, "user_id": user["id"]})
     if not doc:
         raise HTTPException(status_code=404, detail="Proiect inexistent")
-    await db.projects.update_one({"id": project_id}, {"$set": {"status": "processing"}})
+    if mode not in ("prompt", "subtitle"):
+        mode = "prompt"
+    await db.projects.update_one({"id": project_id}, {"$set": {"status": "processing", "mode": mode}})
     try:
-        plan = await generate_ai_plan(doc["title"], doc.get("theme", ""), doc.get("notes", ""))
+        plan = await generate_ai_plan(doc["title"], doc.get("theme", ""), doc.get("notes", ""), mode)
     except Exception as e:
         logger.error(f"AI plan failed: {e}")
         await db.projects.update_one({"id": project_id}, {"$set": {"status": "uploaded"}})
-        raise HTTPException(status_code=502, detail="Generarea planului AI a eșuat. Încearcă din nou.")
+        raise HTTPException(status_code=502, detail="Generarea AI a eșuat. Încearcă din nou.")
     await db.projects.update_one(
         {"id": project_id},
-        {"$set": {"plan": plan, "status": "review", "updated_at": datetime.now(timezone.utc).isoformat()}},
+        {"$set": {"plan": plan, "mode": mode, "status": "review", "updated_at": datetime.now(timezone.utc).isoformat()}},
     )
     doc = await db.projects.find_one({"id": project_id}, {"_id": 0})
     return doc

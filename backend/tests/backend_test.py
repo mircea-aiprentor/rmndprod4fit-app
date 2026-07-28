@@ -159,6 +159,59 @@ class TestProjectsFlow:
         assert g.status_code == 404
 
 
+# ---------------- Mode selector (prompt vs subtitle) ----------------
+class TestGenerateModes:
+    """Verify ?mode=subtitle and ?mode=prompt produce correct plan shapes and persist mode."""
+
+    def _upload_and_create(self, auth_headers, title):
+        files = {"file": ("dummy.mp4", io.BytesIO(b"\x00\x00\x00\x18ftypmp42" + b"0" * 2048), "video/mp4")}
+        r = requests.post(f"{API}/upload", headers=auth_headers, files=files, timeout=60)
+        assert r.status_code == 200, r.text
+        sp = r.json()["storage_path"]
+        data = {"title": title, "theme": "Forta", "notes": "test",
+                "storage_path": sp, "filename": "dummy.mp4", "size": "2056"}
+        r = requests.post(f"{API}/projects", headers=auth_headers, data=data, timeout=30)
+        assert r.status_code == 200
+        return r.json()["id"]
+
+    def test_generate_subtitle_mode(self, auth_headers):
+        pid = self._upload_and_create(auth_headers, "TEST_Subtitle_Mode")
+        try:
+            r = requests.post(f"{API}/projects/{pid}/generate-plan?mode=subtitle",
+                              headers=auth_headers, timeout=90)
+            assert r.status_code == 200, r.text
+            d = r.json()
+            assert d["status"] == "review"
+            assert d.get("mode") == "subtitle"
+            plan = d.get("plan") or {}
+            # subtitle mode: must have subtitles + subtitle_segments
+            assert "subtitles" in plan
+            assert "subtitle_segments" in plan
+            assert isinstance(plan["subtitle_segments"], list)
+            assert len(plan["subtitle_segments"]) > 0
+            # subtitle mode: MUST NOT include hook/caption/cta/hashtags
+            for banned in ("hook", "caption", "cta", "hashtags"):
+                assert banned not in plan or not plan.get(banned), (
+                    f"subtitle mode plan should NOT contain '{banned}' but got: {plan.get(banned)!r}"
+                )
+        finally:
+            requests.delete(f"{API}/projects/{pid}", headers=auth_headers)
+
+    def test_generate_prompt_mode(self, auth_headers):
+        pid = self._upload_and_create(auth_headers, "TEST_Prompt_Mode")
+        try:
+            r = requests.post(f"{API}/projects/{pid}/generate-plan?mode=prompt",
+                              headers=auth_headers, timeout=90)
+            assert r.status_code == 200, r.text
+            d = r.json()
+            assert d.get("mode") == "prompt"
+            plan = d.get("plan") or {}
+            for f in ("hook", "caption", "cta", "hashtags", "subtitles", "subtitle_segments"):
+                assert f in plan and plan[f], f"prompt mode missing '{f}'"
+        finally:
+            requests.delete(f"{API}/projects/{pid}", headers=auth_headers)
+
+
 # ---------------- Dashboard ----------------
 class TestDashboard:
     def test_stats(self, session, auth_headers):
