@@ -1,42 +1,29 @@
-import { createContext, useContext, useEffect, useState } from "react";
-import api from "@/lib/api";
+import { createContext, useContext, useState } from "react";
 
 const AuthContext = createContext(null);
+const KEY = "pa_trainer";
 
 export function AuthProvider({ children }) {
-  const [user, setUser] = useState(null); // null = loading, false = anon, object = user
-  const token = localStorage.getItem("pa_token");
-
-  useEffect(() => {
-    if (!token) {
-      setUser(false);
-      return;
+  const [user, setUser] = useState(() => {
+    try {
+      const raw = localStorage.getItem(KEY);
+      return raw ? JSON.parse(raw) : false;
+    } catch {
+      return false;
     }
-    api
-      .get("/auth/me")
-      .then((res) => setUser(res.data.user))
-      .catch(() => {
-        localStorage.removeItem("pa_token");
-        setUser(false);
-      });
-  }, [token]);
+  });
 
-  const applyAuth = (data) => {
-    localStorage.setItem("pa_token", data.token);
-    setUser(data.user);
+  const applyAuth = (trainer) => {
+    localStorage.setItem(KEY, JSON.stringify(trainer));
+    setUser(trainer);
   };
 
   const logout = () => {
-    localStorage.removeItem("pa_token");
+    localStorage.removeItem(KEY);
     setUser(false);
   };
 
-  const refreshUser = async () => {
-    try {
-      const res = await api.get("/auth/me");
-      setUser(res.data.user);
-    } catch (e) {}
-  };
+  const refreshUser = async () => {};
 
   return (
     <AuthContext.Provider value={{ user, setUser, applyAuth, logout, refreshUser }}>

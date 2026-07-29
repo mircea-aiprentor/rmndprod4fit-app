@@ -17,11 +17,19 @@ function ensure() {
 
 /* ---------------- AUTH (login pe bază de PIN) ---------------- */
 export async function loginWithPin(pin) {
-  ensure();
+  const clean = String(pin || "").trim();
+  // Fallback DEMO — activ când Supabase NU e configurat (pentru preview/testare)
+  if (!supabase) {
+    const demoPin = process.env.REACT_APP_DEMO_PIN || "1234";
+    if (clean === demoPin) {
+      return { id: "demo-trainer", name: "Elvis Antrenor", plan: "coach_plus_monthly", plan_name: "Coach +" };
+    }
+    throw new Error("PIN invalid");
+  }
   const { data, error } = await supabase
     .from("trainers")
     .select("id, name, plan")
-    .eq("pin", pin)
+    .eq("pin", clean)
     .single();
   if (error || !data) throw new Error("PIN invalid");
   return data; // { id, name, plan }
