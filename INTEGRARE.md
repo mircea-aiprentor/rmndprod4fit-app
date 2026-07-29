@@ -3,7 +3,7 @@
 Acest frontend a fost livrat **gata de conectat** la stack-ul tău real:
 **Supabase** (date + auth PIN) · **n8n** (motor: Claude + AssemblyAI + Shotstack/Creatomate) · **Cloudflare R2** (video) · **Stripe** (linkuri de plată).
 
-> În preview, frontend-ul rulează pe un backend DEMO (FastAPI). Tu îl comuți pe backend-ul tău completând `.env` și folosind stratul de servicii `src/services/elvispro.js`.
+> Acest repo conține **DOAR frontend-ul** (fără backend inclus). Îl conectezi la stack-ul tău completând `.env` și folosind stratul de servicii `src/services/elvispro.js`.
 
 ---
 
@@ -33,7 +33,6 @@ Toate se citesc în `src/config/integration.js`.
 | Upload video | `src/pages/Projects.jsx` (UploadModal) | `uploadVideo(file)` → R2, apoi `createReel({...})` |
 | Buton „Generează" (Prompt/Subtitrare) | `src/pages/ProjectDetail.jsx` | `triggerGeneration({ mode, trainerId, reelId, videoUrl, title, theme, notes })` |
 | Abonamente | `src/pages/Billing.jsx` | deja folosește linkurile Stripe LIVE din `integration.js` ✅ |
-
 ## 4. Tabele Supabase presupuse (din documentația ta)
 ```
 trainers(id, name, plan, pin)
