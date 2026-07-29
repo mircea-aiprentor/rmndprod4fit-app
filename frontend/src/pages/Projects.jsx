@@ -2,7 +2,8 @@ import { useEffect, useState, useRef } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { motion } from "framer-motion";
 import DashboardLayout from "@/components/DashboardLayout";
-import api, { formatApiError } from "@/lib/api";
+import { listReels, uploadVideo, createReel } from "@/services/elvispro";
+import { useAuth } from "@/context/AuthContext";
 import { PROJECTS } from "@/constants/testIds";
 import { Plus, UploadCloud, Loader2, Clapperboard, X, CheckCircle2, Film, Wand2, Subtitles } from "lucide-react";
 import { toast } from "sonner";
@@ -17,17 +18,21 @@ const STATUS_LABEL = {
 
 export default function Projects() {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [params, setParams] = useSearchParams();
   const [projects, setProjects] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
 
-  const load = () => api.get("/projects").then((r) => setProjects(r.data)).catch(() => {}).finally(() => setLoading(false));
+  const load = () => {
+    if (!user?.id) return;
+    listReels(user.id).then((r) => setProjects(r)).catch(() => {}).finally(() => setLoading(false));
+  };
   useEffect(() => {
     load();
     if (params.get("new") === "1") { setShowModal(true); setParams({}); }
     // eslint-disable-next-line
-  }, []);
+  }, [user]);
 
   return (
     <DashboardLayout>
@@ -90,6 +95,7 @@ export default function Projects() {
 }
 
 function UploadModal({ onClose, onDone, onCreated }) {
+  const { user } = useAuth();
   const [title, setTitle] = useState("");
   const [theme, setTheme] = useState("General");
   const [notes, setNotes] = useState("");
@@ -119,19 +125,18 @@ function UploadModal({ onClose, onDone, onCreated }) {
     if (!title.trim()) return toast.error("Adaugă un titlu.");
     setBusy(true);
     try {
-      const fd = new FormData();
-      fd.append("file", file);
-      const up = await api.post("/upload", fd, { onUploadProgress: (e) => setProgress(Math.round((e.loaded * 100) / (e.total || 1))) });
-      const pf = new FormData();
-      pf.append("title", title); pf.append("theme", theme); pf.append("notes", notes);
-      pf.append("storage_path", up.data.storage_path); pf.append("filename", up.data.filename);
-      pf.append("size", up.data.size || file.size);
-      pf.append("mode", mode);
-      const proj = await api.post("/projects", pf);
+      setProgress(40);
+      const up = await uploadVideo(file, user.id);
+      setProgress(80);
+      const proj = await createReel({
+        trainerId: user.id, title, theme, notes, mode,
+        videoUrl: up.storage_path, filename: up.filename, size: up.size,
+      });
+      setProgress(100);
       setDone(true);
-      setTimeout(() => onCreated(proj.data.id), 1100);
+      setTimeout(() => onCreated(proj.id), 1100);
     } catch (err) {
-      toast.error(formatApiError(err.response?.data?.detail) || "Încărcarea a eșuat.");
+      toast.error(err.message || "Încărcarea a eșuat.");
       setBusy(false);
     }
   };

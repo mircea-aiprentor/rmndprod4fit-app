@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import DashboardLayout from "@/components/DashboardLayout";
 import AnimatedNumber from "@/components/AnimatedNumber";
-import api from "@/lib/api";
+import { listReels, computeStats } from "@/services/elvispro";
 import { useAuth } from "@/context/AuthContext";
 import { DASHBOARD } from "@/constants/testIds";
 import {
@@ -66,11 +66,15 @@ export default function Dashboard() {
   const [tip] = useState(() => TIPS[Math.floor(Math.random() * TIPS.length)]);
 
   useEffect(() => {
-    Promise.all([api.get("/dashboard/stats"), api.get("/projects")])
-      .then(([s, p]) => { setStats(s.data); setRecent(p.data.slice(0, 5)); })
+    if (!user?.id) return;
+    listReels(user.id)
+      .then((reels) => {
+        setStats({ ...computeStats(reels, user.plan), plan: user.plan, plan_name: user.plan_name });
+        setRecent(reels.slice(0, 5));
+      })
       .catch(() => {})
       .finally(() => setLoading(false));
-  }, []);
+  }, [user]);
 
   const quotaPct = stats?.quota ? Math.min((stats.quota_used / stats.quota) * 100, 100) : 0;
 

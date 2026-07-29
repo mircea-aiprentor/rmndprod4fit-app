@@ -2,7 +2,7 @@ import { useEffect, useState, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import DashboardLayout from "@/components/DashboardLayout";
-import api, { formatApiError } from "@/lib/api";
+import { getReel, runGeneration, approveReel, deleteReel } from "@/services/elvispro";
 import { PROJECTS } from "@/constants/testIds";
 import {
   Sparkles, CheckCircle2, Trash2, Loader2, ArrowLeft, RefreshCw, Save,
@@ -72,13 +72,12 @@ export default function ProjectDetail() {
   const videoRef = useRef();
   const simRef = useRef();
 
-  const token = localStorage.getItem("pa_token");
-  const videoUrl = project ? `${process.env.REACT_APP_BACKEND_URL}/api/files/${project.storage_path}?auth=${token}` : null;
+  const videoUrl = project && /^https?:\/\//.test(project.storage_path || "") ? project.storage_path : null;
   const activeMode = project?.mode || mode;
   const steps = AI_STEPS[activeMode] || AI_STEPS.prompt;
 
-  const load = () => api.get(`/projects/${id}`)
-    .then((r) => { setProject(r.data); setPlan(r.data.plan); setSegments(buildSegments(r.data.plan)); if (r.data.mode) setMode(r.data.mode); })
+  const load = () => getReel(id)
+    .then((r) => { setProject(r); setPlan(r.plan); setSegments(buildSegments(r.plan)); if (r.mode) setMode(r.mode); })
     .catch(() => toast.error("Proiect inexistent"))
     .finally(() => setLoading(false));
   useEffect(() => { load(); /* eslint-disable-next-line */ }, [id]);
@@ -103,21 +102,21 @@ export default function ProjectDetail() {
     const m = chosenMode || mode;
     setGenerating(true);
     try {
-      const { data } = await api.post(`/projects/${id}/generate-plan?mode=${m}`);
-      setProject(data); setPlan(data.plan); setSegments(buildSegments(data.plan)); setMode(data.mode || m);
+      const updated = await runGeneration({ reel: project, mode: m });
+      setProject(updated); setPlan(updated.plan); setSegments(buildSegments(updated.plan)); setMode(updated.mode || m);
       toast.success(m === "subtitle" ? "Subtitrări generate!" : "Reel generat cu subtitrări!");
     } catch (err) {
-      toast.error(formatApiError(err.response?.data?.detail) || "Generarea a eșuat.");
+      toast.error(err.message || "Generarea a eșuat.");
     } finally { setGenerating(false); }
   };
 
   const approve = async () => {
-    try { await api.post(`/projects/${id}/approve`); toast.success("Reel aprobat! Gata de export."); load(); }
+    try { await approveReel(id); toast.success("Reel aprobat! Gata de export."); load(); }
     catch { toast.error("Eroare la aprobare."); }
   };
   const remove = async () => {
     if (!window.confirm("Ștergi acest proiect?")) return;
-    try { await api.delete(`/projects/${id}`); toast.success("Proiect șters."); navigate("/projects"); }
+    try { await deleteReel(id); toast.success("Proiect șters."); navigate("/projects"); }
     catch { toast.error("Ștergerea a eșuat."); }
   };
   const copy = (text, label) => navigator.clipboard.writeText(text || "").then(() => toast.success(`${label} copiat!`)).catch(() => toast.error("Nu s-a putut copia."));
@@ -131,7 +130,7 @@ export default function ProjectDetail() {
     a.download = `${project.title || "reel"}.srt`; a.click(); URL.revokeObjectURL(a.href);
     toast.success("Subtitrări SRT descărcate!");
   };
-  const downloadVideo = () => window.open(videoUrl, "_blank");
+  const downloadVideo = () => videoUrl ? window.open(videoUrl, "_blank") : toast("Video-ul va fi disponibil după conectarea storage-ului (R2).");
 
   if (loading) return <DashboardLayout><div className="flex justify-center py-20"><Loader2 className="w-8 h-8 text-[#C4F601] animate-spin" /></div></DashboardLayout>;
   if (!project) return <DashboardLayout><p className="text-zinc-400">Proiect inexistent.</p></DashboardLayout>;

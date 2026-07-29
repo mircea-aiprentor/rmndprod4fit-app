@@ -1,0 +1,24 @@
+{
+  "summary": "Frontend-only E2E of ElvisPro Cut (Panou Antrenor) after rewiring to src/services/elvispro.js DEMO (localStorage) mode. All 11 scenarios from the review request passed: PIN 1234 login → /dashboard; 4 stat cards + 'Coach +' plan + 'Reels-uri rămase' widget render; PROMPT create-reel flow (upload-mode-prompt → file → title → submit) navigates to /projects/:id; 'Generează reel' produces animated workflow, subtitles list + 'Detalii postare' section, status becomes 'Așteaptă review'; 'Aprobă Reel' flips status to 'Aprobat' and shows export buttons ('Descarcă video', 'Subtitrări SRT', 'Copiază subtitrări'); '.SRT' button triggers browser download of '<title>.srt'; SUBTITLE mode upload modal correctly hides Temă/Note fields; subtitle generation shows ONLY the subtitles section (no 'Detalii postare') and 'Mod: Subtitrare' badge; both reels persist across reload — dashboard Total=2 and 'Reels recente' lists them; delete removes reel and returns to /projects; /billing shows 8 plan cards; logout clears pa_trainer and returns to /login. No frontend or integration issues found.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "elvispro.js loginWithPin returns plan='coach_plus_monthly' and plan_name='Coach +' only in the DEMO branch — in REAL (Supabase) branch it returns only {id,name,plan}. Dashboard uses user.plan_name for the subscription widget, so REAL users will see 'Fără abonament' unless the Supabase select adds plan_name or Dashboard derives it. Consider mapping plan → plan_name in one place.",
+    "quotaForPlan() ordering: 'plus' is checked after 'gym'/'pro' — fine, but 'coach_plus_monthly' (plan slug used in demo) matches 'plus' → 25. That is consistent with 'Coach +' but is undocumented — worth a comment or a plan_slug → quota map.",
+    "ProjectDetail preview: when storage_path is a demo placeholder ('demo/...'), the <video> is not rendered (only 9:16 placeholder). That is per-spec but the download-video button then shows a toast 'Video-ul va fi disponibil...' — good UX.",
+    "runGeneration DEMO branch mutates the stored reel; if user refreshes mid-generation there is no 'processing' persisted state (jumps straight to review). Not a bug for the current spec, but worth noting for future real-mode parity."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "n/a", "frontend": "100% (24/24 assertions)"},
+  "test_credentials": "Demo PIN 1234",
+  "seed_data_creation": "Two reels created in localStorage (pa_demo_reels) during test: 'TEST Prompt Reel' (approved, then deleted) and 'TEST Subtitle Reel' (review). Logout at end cleared pa_trainer but pa_demo_reels for the demo trainer remains — cheap to clear by logging in again if needed.",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "All 11 items from review_request pass in DEMO mode. Key selectors used: [data-testid=upload-mode-prompt|upload-mode-subtitle], projects-upload-input (file), projects-title-input, projects-submit-button, project-generate-plan-button, project-approve-button, project-delete-button, subtitle-list, subtitle-download-srt, dashboard-stat-*. Delete uses window.confirm() — must attach a dialog handler with page.once('dialog', d.accept). Uploading a tiny fake .mp4 with 'video/mp4' first 32B is enough to satisfy the type-check in pickFile(). Nothing to fix."
+}
