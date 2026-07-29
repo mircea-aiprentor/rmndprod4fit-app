@@ -45,3 +45,9 @@ Livrat:
 - `INTEGRARE.md` — ghid complet de mapare UI→Supabase/n8n/Stripe + tabele + flux Generează.
 - `.env.example` actualizat cu REACT_APP_SUPABASE_* și REACT_APP_N8N_*.
 Preview rulează în continuare pe backend-ul DEMO (FastAPI) pt. testare; comutarea pe Supabase/n8n se face din .env + servicii.
+
+## Update (login PIN — iulie 2026)
+- Login convertit din email/parolă în **PIN** (keypad numeric), folosind `loginWithPin` din `src/services/elvispro.js`.
+- Fallback DEMO în preview (fără Supabase): PIN `1234` → trainer „Elvis Antrenor" (Coach +). În producție validează contra tabelului `trainers` (coloana `pin`).
+- AuthContext: trainer în localStorage `pa_trainer`, fără apeluri backend. Register eliminat.
+- Testat frontend-only: 8/8 scenarii PASS (iteration_1).
