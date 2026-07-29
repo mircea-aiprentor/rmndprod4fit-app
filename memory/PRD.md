@@ -51,3 +51,11 @@ Preview rulează în continuare pe backend-ul DEMO (FastAPI) pt. testare; comuta
 - Fallback DEMO în preview (fără Supabase): PIN `1234` → trainer „Elvis Antrenor" (Coach +). În producție validează contra tabelului `trainers` (coloana `pin`).
 - AuthContext: trainer în localStorage `pa_trainer`, fără apeluri backend. Register eliminat.
 - Testat frontend-only: 8/8 scenarii PASS (iteration_1).
+
+## Update (Dashboard/Projects/ProjectDetail conectate la elvispro.js — iulie 2026)
+- Toate paginile de date folosesc acum `src/services/elvispro.js` (nu mai există apeluri către backend-ul demo REST).
+- elvispro.js = strat unic cu 2 moduri: REAL (Supabase select/insert/update/delete + n8n `triggerGeneration`/`pollReelStatus`) și DEMO (localStorage `pa_demo_reels`, generare simulată) pentru preview.
+- Funcții: loginWithPin, listReels, getReel, uploadVideo, createReel, runGeneration, approveReel, deleteReel, computeStats, quotaForPlan, listPlans.
+- Dashboard: stats calculate client-side din reels. Projects: upload+create prin serviciu. ProjectDetail: getReel/runGeneration/approve/delete; preview video doar dacă storage_path e URL http.
+- Testat frontend-only: 11/11 scenarii PASS (iteration_2).
+- De conectat de user: `uploadVideo` la R2 + maparea exactă a coloanelor `reels` din Supabase.
