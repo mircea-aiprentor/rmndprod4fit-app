@@ -35,3 +35,13 @@ Repo-ul GitHub conectat conținea DOAR boilerplate-ul Emergent (fără app real)
 
 ## Credențiale
 Vezi /app/memory/test_credentials.md (demo: antrenor@elvisprocut.ro / Antrenor2025!).
+
+## Update (integrare stack real — iulie 2026)
+User a clarificat: vrea DOAR frontend-ul; backend-ul real (Supabase + n8n + Shotstack + R2 + Stripe) îl conectează singur (are cont n8n de test cu aceeași structură ca live).
+Livrat:
+- `src/config/integration.js` — punct central: Supabase URL/anon, n8n webhook + Reel API Key, payload builder, 8 linkuri Stripe LIVE.
+- `src/lib/supabaseClient.js` + `src/services/elvispro.js` — funcții gata de folosit (loginWithPin, listReels, getReel, createReel, triggerGeneration, pollReelStatus, listPlans, uploadVideo).
+- `Billing.jsx` rescris → folosește linkurile Stripe reale (8 tiere).
+- `INTEGRARE.md` — ghid complet de mapare UI→Supabase/n8n/Stripe + tabele + flux Generează.
+- `.env.example` actualizat cu REACT_APP_SUPABASE_* și REACT_APP_N8N_*.
+Preview rulează în continuare pe backend-ul DEMO (FastAPI) pt. testare; comutarea pe Supabase/n8n se face din .env + servicii.
